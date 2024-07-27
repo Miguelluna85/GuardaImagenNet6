@@ -1,4 +1,6 @@
 ﻿using GuardaImagenNet6.Models;
+using GuardaImagenNet6.Models.Contexto;
+using GuardaImagenNet6.ViewModel;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
@@ -6,17 +8,45 @@ namespace GuardaImagenNet6.Controllers;
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
+    private readonly PruebasDBContext context;
 
-    public HomeController(ILogger<HomeController> logger)
+    public HomeController(ILogger<HomeController> logger, PruebasDBContext _context)
     {
         _logger = logger;
+        context = _context;
     }
 
     public IActionResult Index()
     {
+        var list = context.Usuarios.ToList();
         return View();
     }
 
+    [HttpPost]
+    public IActionResult Index(UsuarioVM usuario)
+    {
+        if (usuario == null)
+            return BadRequest("Error usuario no valido");
+        if (usuario.FotoByte == null || usuario.FotoByte.Length == 0)
+            return BadRequest("Imagen no seleccionada");
+
+        string photoName = Path.GetFileName(usuario.FotoByte.FileName);
+        string contentType = usuario.FotoByte.ContentType;
+
+        using (var streamPhoto = new MemoryStream())
+        {
+            usuario.FotoByte.CopyToAsync(streamPhoto);
+            Usuario user = new Usuario();
+            user.UserName = usuario.NombreUsuario;
+            user.Password = usuario.contrasenya;
+            user.FotoBd = streamPhoto.ToArray();
+            user.Estatus = usuario.Activo;
+
+            context.Usuarios.Add(user);
+            context.SaveChanges();
+        }
+        return View();
+    }
     public IActionResult Privacy()
     {
         return View();
