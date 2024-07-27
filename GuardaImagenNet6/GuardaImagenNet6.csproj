@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <Folder Include="Models\Contexto\" />
-    <Folder Include="wwwroot\js\usuario\" />
   </ItemGroup>
 
   <ItemGroup>
