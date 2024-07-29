@@ -8,6 +8,7 @@ public class UsuarioVM
     public string FotoPath { get; set; }
     public IFormFile FotoByte { get; set; }
     public bool Activo { get; set; }
+    public DateTime FechaAlta { get; set; }
 
 
 }

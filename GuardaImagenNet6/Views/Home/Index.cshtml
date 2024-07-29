@@ -30,9 +30,9 @@
                 <td>@Html.DisplayFor(item => user.FechaAlta)</td>
                 <td>@Html.CheckBox("Activo_" + user.Id.ToString(), user.Estatus ?? false, new { @class = "form-check-input"})</td>
                 <td>
-                    <a asp-controller="Home" asp-action="Detalles" class="link-primary" >Detalle</a> |
-                    <a asp-controller="Home" asp-action="Actualizar" class="link-info">Actualizar</a>|
-                    <a asp-controller="Home" asp-action="Eliminar" class="link-danger"> Eliminar</a>
+                    <a asp-controller="Home" asp-action="Detalles" asp-route-id="@user.Id" class="link-primary" >Detalle</a> |
+                    <a asp-controller="Home" asp-action="Actualizar" asp-route-id="@user.Id" class="link-info">Actualizar</a>|
+                    <a asp-controller="Home" asp-action="Eliminar" asp-route-id="@user.Id" class="link-danger"> Eliminar</a>
                 </td>
             </tr>
         }

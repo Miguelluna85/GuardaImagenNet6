@@ -87,9 +87,25 @@ public class HomeController : Controller
     }
 
 
-    public IActionResult Detalles()
+    public async Task<IActionResult> Detalles(int id)
     {
-        return View();
+        if (id <= 0)
+            return View("Index");
+
+        Usuario userDB = await context.Usuarios.FindAsync(id);
+        if (userDB == null)
+
+            return View("Index");
+
+        UsuarioVM userFound = new UsuarioVM
+        {
+            ID = userDB.Id,
+            NombreUsuario = userDB.UserName,
+            Contrasenya = userDB.Password,
+            FechaAlta = userDB.FechaAlta,
+            Activo = userDB.Estatus ?? false
+        };
+        return View(userFound);
     }
 
     public IActionResult Eliminar()
