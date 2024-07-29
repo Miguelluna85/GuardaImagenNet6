@@ -1,36 +1,41 @@
-﻿@model GuardaImagenNet6.ViewModel.UsuarioVM
+﻿@model IEnumerable<Usuario>
 @{
-    ViewData["Title"] = "Privacy Policy";
+    ViewData["Title"] = "Usuarios";
 }
-<div class="row">
-    <h2>Alta de Usuario</h2>
-</div>
-<form method="post" enctype="multipart/form-data" asp-controller="Home" asp-action="Index">
-    <div class="row">
-        <div class="col-5">
-            <div class="form-group mt-3">
-                <input type="text" class="form-control" asp-for="NombreUsuario" placeholder="Nombre Usuario" />
-            </div>
-            <div class="form-group  mt-3">
-                <input type="password" class="form-control" asp-for="contrasenya" placeholder="Contraseña" />
-            </div>
-            <div class="form-group mt-3">
-                <input type="file" class="form-control-file" asp-for="FotoByte" accept="image/*" />
-            </div>
-            <div class="form-group mt-3">
-                <input type="checkbox" class="form-control-checkbox" asp-for="Activo" placeholder="Nombre Usuario" />
-                <label for="Activo">Activo</label>
-            </div>
-            <div class="form-group mt-3">
-                <button type="submit" class="btn btn-primary">Guardar</button>
-            </div>
-        </div>
-        <div class="col-4 offset-2">
-            <img src="~/image/user-azul.jpg" id="imgUser" alt="imagen usuario" width="50%" />
-        </div>
-    </div>
-</form>
 
-@section Scripts{
-    <script src="~/js/usuario/PreVisualmagenUser.js" asp-append-verion="true"></script>
-}
+<h3 class="text-center mb-4">Listado de Usuarios</h3>
+<p class="text-end">
+    <a asp-controller="Home" asp-action="Crear" class="btn btn-success ">Nuevo Usuario</a>
+</p>
+<hr />
+<table class="table table-hover">
+    <thead>
+        <tr class="text-center">
+            <th>@Html.DisplayName("ID")</th>
+            <th>@Html.DisplayName("Usuario")</th>
+            <th>@Html.DisplayName("Contraseña")</th>
+            <th>@Html.DisplayName("Fecha Alta")</th>
+            <th>@Html.DisplayName("Estus")</th>
+            <th>@Html.DisplayName("Acciones")</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (Usuario user in Model)
+        {
+            <tr class="text-center">
+                <td>@Html.DisplayFor(item => user.Id)</td>
+                <td>@Html.DisplayFor(item => user.UserName)</td>
+                <td>@Html.DisplayFor(item => user.Password)</td>
+                @* <td>@Html.DisplayFor(item => user.FotoBd)</td> *@
+                <td>@Html.DisplayFor(item => user.FechaAlta)</td>
+                <td>@Html.CheckBox("Activo_" + user.Id.ToString(), user.Estatus ?? false, new { @class = "form-check-input"})</td>
+                <td>
+                    <a asp-controller="Home" asp-action="Detalles" class="link-primary" >Detalle</a> |
+                    <a asp-controller="Home" asp-action="Actualizar" class="link-info">Actualizar</a>|
+                    <a asp-controller="Home" asp-action="Eliminar" class="link-danger"> Eliminar</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+
+</table>

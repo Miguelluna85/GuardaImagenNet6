@@ -19,11 +19,18 @@ public class HomeController : Controller
     public IActionResult Index()
     {
         var list = context.Usuarios.ToList();
+        return View(list);
+    }
+
+    [HttpGet]
+    public IActionResult Crear()
+    {
         return View();
     }
 
     [HttpPost]
-    public IActionResult Index(UsuarioVM usuario)
+    [ValidateAntiForgeryToken]
+    public IActionResult Crear([Bind("NombreUsuario,Contrasenya,FotoByte,Activo")] UsuarioVM usuario)
     {
         if (usuario == null)
             return BadRequest("Error usuario no valido");
@@ -38,7 +45,7 @@ public class HomeController : Controller
             usuario.FotoByte.CopyToAsync(streamPhoto);
             Usuario user = new Usuario();
             user.UserName = usuario.NombreUsuario;
-            user.Password = usuario.contrasenya;
+            user.Password = usuario.Contrasenya;
             user.FotoBd = streamPhoto.ToArray();
             user.Estatus = usuario.Activo;
 
@@ -47,10 +54,56 @@ public class HomeController : Controller
         }
         return View();
     }
-    public IActionResult Privacy()
+
+    public IActionResult Actualizar()
     {
         return View();
     }
+
+    [HttpPut]
+    public IActionResult Actualizar(UsuarioVM usuario)
+    {
+        if (usuario == null)
+            return BadRequest("Error usuario no valido");
+        if (usuario.FotoByte == null || usuario.FotoByte.Length == 0)
+            return BadRequest("Imagen no seleccionada");
+
+        string photoName = Path.GetFileName(usuario.FotoByte.FileName);
+        string contentType = usuario.FotoByte.ContentType;
+
+        using (var streamPhoto = new MemoryStream())
+        {
+            usuario.FotoByte.CopyToAsync(streamPhoto);
+            Usuario user = new Usuario();
+            user.UserName = usuario.NombreUsuario;
+            user.Password = usuario.Contrasenya;
+            user.FotoBd = streamPhoto.ToArray();
+            user.Estatus = usuario.Activo;
+
+            context.Usuarios.Add(user);
+            context.SaveChanges();
+        }
+        return View();
+    }
+
+
+    public IActionResult Detalles()
+    {
+        return View();
+    }
+
+    public IActionResult Eliminar()
+    {
+        return View();
+    }
+
+
+    public IActionResult Contacto()
+    {
+        return View();
+    }
+
+
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
