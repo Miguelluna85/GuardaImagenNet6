@@ -23,8 +23,6 @@ public class HomeController : Controller
 
     public IActionResult Index()
     {
-
-
         var list = context.Usuarios.ToList();
         return View(list);
     }
@@ -118,11 +116,11 @@ public class HomeController : Controller
         }
         else
         {
-            var foldername = "image";
-            var filename = "user-azul.jpg";
+            var foldername = @"image\Usuario";
+            var filename = "userDefault.png";
             var path1 = Path.Combine(env.WebRootPath, foldername, filename);
-            var path2 = Path.Combine("\\", foldername, filename);
-            Uri location = new Uri($"{Request.Scheme}://{Request.Host}/{foldername}/{filename}");
+            var path2 = Path.Combine("\\", foldername, filename);//ruta relativa img
+            Uri location = new Uri($"{Request.Scheme}://{Request.Host}/{foldername}/{filename}");//absoluta
             imagenSrc = location.AbsoluteUri;
         }
 
