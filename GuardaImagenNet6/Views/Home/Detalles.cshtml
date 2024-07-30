@@ -1,4 +1,4 @@
-﻿@model GuardaImagenNet6.ViewModel.UsuarioVM
+﻿@model GuardaImagenNet6.ViewModel.Usuario.UsuarioVM
 @{
     ViewData["title"] = "Detalles Usuario";
 }
@@ -40,13 +40,13 @@
         </div>
     </div>
     <div class="col-2">
-        <img src="~/image/user-azul.jpg" id="imgUser" alt="imagen usuario" width="50%" />
+        <img src=@Model.FotoByteSrc id="imgUser" alt="imagen usuario" width="50%" />
     </div>
 </div>
 <div class="row mt-5">
     <div class="col-5">
-     <a asp-controller="Home" asp-action="Index" class="btn btn-info">Inicio</a>
-     <a asp-controller="Home" asp-action="Crear" class="btn btn-success offset-1">Nuevo Usuario</a>
+        <a asp-controller="Home" asp-action="Index" class="btn btn-info">Inicio</a>
+        <a asp-controller="Home" asp-action="Crear" class="btn btn-success offset-1">Nuevo Usuario</a>
     </div>
 </div>
 

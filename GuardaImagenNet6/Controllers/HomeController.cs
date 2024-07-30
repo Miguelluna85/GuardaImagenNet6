@@ -1,7 +1,10 @@
 ﻿using GuardaImagenNet6.Models;
 using GuardaImagenNet6.Models.Contexto;
 using GuardaImagenNet6.ViewModel;
+using GuardaImagenNet6.ViewModel.Usuario;
+using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Hosting.Internal;
 using System.Diagnostics;
 
 namespace GuardaImagenNet6.Controllers;
@@ -9,15 +12,19 @@ public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
     private readonly PruebasDBContext context;
+    private readonly IWebHostEnvironment env;
 
-    public HomeController(ILogger<HomeController> logger, PruebasDBContext _context)
+    public HomeController(IWebHostEnvironment _env, ILogger<HomeController> logger, PruebasDBContext _context)
     {
         _logger = logger;
+        env = _env;
         context = _context;
     }
 
     public IActionResult Index()
     {
+
+
         var list = context.Usuarios.ToList();
         return View(list);
     }
@@ -30,6 +37,7 @@ public class HomeController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    //  revisar
     public IActionResult Crear([Bind("NombreUsuario,Contrasenya,FotoByte,Activo")] UsuarioVM usuario)
     {
         if (usuario == null)
@@ -38,7 +46,12 @@ public class HomeController : Controller
             return BadRequest("Imagen no seleccionada");
 
         string photoName = Path.GetFileName(usuario.FotoByte.FileName);
-        string contentType = usuario.FotoByte.ContentType;
+        string extPhoto = Path.GetExtension(usuario.FotoByte.FileName);
+
+        ImagenesUtility imagenTools = new ImagenesUtility();
+
+        if (!imagenTools.ExtensionsFotosValid(extPhoto))
+            return BadRequest("El archivo no es una imagen valida");
 
         using (var streamPhoto = new MemoryStream())
         {
@@ -93,9 +106,26 @@ public class HomeController : Controller
             return View("Index");
 
         Usuario userDB = await context.Usuarios.FindAsync(id);
-        if (userDB == null)
 
+        if (userDB == null)
             return View("Index");
+
+        string imagenSrc = string.Empty;
+        if (userDB.FotoBd != null)
+        {
+            string imgBase64 = Convert.ToBase64String(userDB.FotoBd);
+            imagenSrc = string.Format("data:imagen/*;base64,{0}", imgBase64);
+        }
+        else
+        {
+            var foldername = "image";
+            var filename = "user-azul.jpg";
+            var path1 = Path.Combine(env.WebRootPath, foldername, filename);
+            var path2 = Path.Combine("\\", foldername, filename);
+            Uri location = new Uri($"{Request.Scheme}://{Request.Host}/{foldername}/{filename}");
+            imagenSrc = location.AbsoluteUri;
+        }
+
 
         UsuarioVM userFound = new UsuarioVM
         {
@@ -103,6 +133,7 @@ public class HomeController : Controller
             NombreUsuario = userDB.UserName,
             Contrasenya = userDB.Password,
             FechaAlta = userDB.FechaAlta,
+            FotoByteSrc = imagenSrc,
             Activo = userDB.Estatus ?? false
         };
         return View(userFound);
