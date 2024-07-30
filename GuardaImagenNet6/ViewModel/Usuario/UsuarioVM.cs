@@ -7,7 +7,7 @@ public class UsuarioVM
     public string Contrasenya { get; set; }
     public string FotoPath { get; set; }
     public IFormFile FotoByte { get; set; }
-    public string FotoByteSrc { get; set; }
+    public string FotoSrc { get; set; }
     public bool Activo { get; set; }
     public DateTime FechaAlta { get; set; }
 

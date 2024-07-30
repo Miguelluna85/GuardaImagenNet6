@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Usuario>
+﻿@model IEnumerable<GuardaImagenNet6.ViewModel.Usuario.UsuarioVM>
 @{
     ViewData["Title"] = "Usuarios";
 }
@@ -14,25 +14,26 @@
             <th>@Html.DisplayName("ID")</th>
             <th>@Html.DisplayName("Usuario")</th>
             <th>@Html.DisplayName("Contraseña")</th>
+            <th>Foto</th>
             <th>@Html.DisplayName("Fecha Alta")</th>
             <th>@Html.DisplayName("Estus")</th>
             <th>@Html.DisplayName("Acciones")</th>
         </tr>
     </thead>
     <tbody>
-        @foreach (Usuario user in Model)
+        @foreach (GuardaImagenNet6.ViewModel.Usuario.UsuarioVM user in Model)
         {
             <tr class="text-center">
-                <td>@Html.DisplayFor(item => user.Id)</td>
-                <td>@Html.DisplayFor(item => user.UserName)</td>
-                <td>@Html.DisplayFor(item => user.Password)</td>
-                @* <td>@Html.DisplayFor(item => user.FotoBd)</td> *@
+                <td>@Html.DisplayFor(item => user.ID)</td>
+                <td>@Html.DisplayFor(item => user.NombreUsuario)</td>
+                <td>@Html.DisplayFor(item => user.Contrasenya)</td>
                 <td>@Html.DisplayFor(item => user.FechaAlta)</td>
-                <td>@Html.CheckBox("Activo_" + user.Id.ToString(), user.Estatus ?? false, new { @class = "form-check-input"})</td>
+                <td><img id="imgUser_@user.ID" src=@user.FotoSrc Width="50" /></td>
+                <td>@Html.CheckBox("Activo_" + user.ID.ToString(), user.Activo ? user.Activo : false, new { @class = "form-check-input" })</td>
                 <td>
-                    <a asp-controller="Home" asp-action="Detalles" asp-route-id="@user.Id" class="link-primary" >Detalle</a> |
-                    <a asp-controller="Home" asp-action="Actualizar" asp-route-id="@user.Id" class="link-info">Actualizar</a>|
-                    <a asp-controller="Home" asp-action="Eliminar" asp-route-id="@user.Id" class="link-danger"> Eliminar</a>
+                    <a asp-controller="Home" asp-action="Detalles" asp-route-id="@user.ID" class="link-primary">Detalle</a> |
+                    <a asp-controller="Home" asp-action="Actualizar" asp-route-id="@user.ID" class="link-info">Actualizar</a>|
+                    <a asp-controller="Home" asp-action="Eliminar" asp-route-id="@user.ID" class="link-danger"> Eliminar</a>
                 </td>
             </tr>
         }
