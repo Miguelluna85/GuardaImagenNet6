@@ -25,7 +25,7 @@ public class HomeController : Controller
 
     public async Task<IActionResult> Index()
     {
-        IEnumerable<Usuario> listUserBD = await context.Usuarios.ToListAsync();
+        IEnumerable<Usuario> listUserBD = await context.Usuarios.AsNoTracking().ToListAsync();
         List<UsuarioVM> listUserVM = new List<UsuarioVM>();
 
         foreach (Usuario userDB in listUserBD)
@@ -58,6 +58,7 @@ public class HomeController : Controller
     {
         if (usuario == null)
             return BadRequest("Error usuario no valido");
+
         if (usuario.FotoByte == null || usuario.FotoByte.Length == 0)
             return BadRequest("Imagen no seleccionada");
 
@@ -82,49 +83,96 @@ public class HomeController : Controller
 
         await context.SaveChangesAsync();
 
-        return RedirectToAction("Index");
+        return RedirectToAction(nameof(Index));
     }
 
-    public IActionResult Actualizar()
+    public async Task<IActionResult> Actualizar(int id)
     {
-        return View();
+        if (id == 0) return BadRequest("Usuario no Proporcionado");
+
+        var userFound = await usuarioVMSearch(id);
+
+        if (userFound == null)
+            return BadRequest("Usuario No Encontrado.");
+
+        return View(userFound);
+
+
+        //if (usuario == null)
+        //    return BadRequest("Error usuario no valido");
+        //if (usuario.FotoByte == null || usuario.FotoByte.Length == 0)
+        //    return BadRequest("Imagen no seleccionada");
+
+        //string photoName = Path.GetFileName(usuario.FotoByte.FileName);
+        //string contentType = usuario.FotoByte.ContentType;
+
+        //using (var streamPhoto = new MemoryStream())
+        //{
+        //    usuario.FotoByte.CopyToAsync(streamPhoto);
+        //    Usuario user = new Usuario();
+        //    user.UserName = usuario.NombreUsuario;
+        //    user.Password = usuario.Contrasenya;
+        //    user.FotoBd = streamPhoto.ToArray();
+        //    user.Estatus = usuario.Activo;
+
+        //    context.Usuarios.Update(user);
+        //    context.SaveChanges();
+        //}
+
     }
 
-    [HttpPut]
-    public IActionResult Actualizar(UsuarioVM usuario)
+
+    [HttpPost, ActionName("Actualizar")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(int? id, UsuarioVM user)
     {
-        if (usuario == null)
-            return BadRequest("Error usuario no valido");
-        if (usuario.FotoByte == null || usuario.FotoByte.Length == 0)
-            return BadRequest("Imagen no seleccionada");
+        if (id == null)
+            return NotFound();
+        if (id <= 0)
+            return BadRequest("Usuario no encontrado");
 
-        string photoName = Path.GetFileName(usuario.FotoByte.FileName);
-        string contentType = usuario.FotoByte.ContentType;
+        //var usrBD1 = await context.Usuarios.FindAsync(id);
+        var usertToUpdate = await context.Usuarios.AsNoTracking().FirstOrDefaultAsync();
 
-        using (var streamPhoto = new MemoryStream())
+        if (usertToUpdate == null)
+            return BadRequest("Usuario no encontrado");
+
+        if (await TryUpdateModelAsync<Usuario>(
+            usertToUpdate,
+            "",
+            u => u.UserName, u => u.Password, u => u.Estatus))
         {
-            usuario.FotoByte.CopyToAsync(streamPhoto);
-            Usuario user = new Usuario();
-            user.UserName = usuario.NombreUsuario;
-            user.Password = usuario.Contrasenya;
-            user.FotoBd = streamPhoto.ToArray();
-            user.Estatus = usuario.Activo;
-
-            context.Usuarios.Add(user);
-            context.SaveChanges();
+            try
+            {
+                await context.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                ModelState.AddModelError("", "Error a actualizar" + ex.ToString());
+            }
         }
-        return View();
+
+
+
+        return RedirectToAction(nameof(Index));
     }
+
+
 
     public async Task<IActionResult> Detalles(int id)
     {
-        if (id <= 0)
-            return View("Index");
+        var userFound = await usuarioVMSearch(id);
+        if (userFound == null)
+            return BadRequest("Usuario No Encontrado.");
+
+        return View(userFound);
+    }
+    private async Task<UsuarioVM> usuarioVMSearch(int id)
+    {
+        if (id <= 0) return null;
 
         Usuario userDB = await context.Usuarios.FindAsync(id);
-
-        if (userDB == null)
-            return View("Index");
+        if (userDB == null) return null;
 
         UsuarioVM userFound = new UsuarioVM
         {
@@ -135,24 +183,25 @@ public class HomeController : Controller
             FotoSrc = ImageBdToURL(userDB.FotoBd),
             Activo = userDB.Estatus ?? false
         };
-
-        return View(userFound);
+        return userFound;
     }
-    private string ImageBdToURL(byte[] FotoBD)
+    private string ImageBdToURL(byte[] FotoDB)
     {
-        if (FotoBD != null)
-        {
-            string imgBase64 = Convert.ToBase64String(FotoBD);
-            return string.Format("data:imagen/*;base64,{0}", imgBase64);
-        }
-        else
+        if (FotoDB == null || FotoDB.Length == 0)
         {
             var foldername = @"image\Usuario";
             var filename = "userDefault.png";
             var path1 = Path.Combine(env.WebRootPath, foldername, filename);
             var path2 = Path.Combine("\\", foldername, filename);//ruta relativa img
-            Uri location = new Uri($"{Request.Scheme}://{Request.Host}/{foldername}/{filename}");//absoluta
+            Uri location = new Uri($"{Request.Scheme}://{Request.Host}/{foldername}/{filename}");//ruta absoluta
+
             return location.AbsoluteUri;
+        }
+        else
+        {
+            string imgBase64 = Convert.ToBase64String(FotoDB);
+
+            return string.Format("data:imagen/*;base64,{0}", imgBase64);
         }
     }
     public IActionResult Eliminar()

@@ -1,10 +1,37 @@
-﻿
+﻿@model GuardaImagenNet6.ViewModel.Usuario.UsuarioVM
 @{
     ViewData["Title"] = "Actualizar Usuario";
 }
 
 <h3>Actualizar Usuario</h3>
 
-<form asp-controller="Home" asp-action="Editar" method="post">
-
+<form asp-controller="Home" asp-action="Actualizar" method="post" role="form">
+    <div class="row">
+        <div class="col-5">
+            <div class="form-group mt-3">
+                <input type="text" class="form-control" asp-for="NombreUsuario" placeholder="Nombre Usuario" />
+            </div>
+            <div class="form-group  mt-3">
+                <input type="password" class="form-control" asp-for="Contrasenya" placeholder="Contraseña" />
+            </div>
+            <div class="form-group mt-3">
+                <input type="file" class="form-control-file" asp-for="FotoByte" accept="image/*" />
+            </div>
+            <div class="form-group mt-3">
+                <input type="checkbox" class="form-control-checkbox" asp-for="Activo" placeholder="Nombre Usuario" />
+                <label for="Activo">Activo</label>
+            </div>
+            <div class="form-group mt-3">
+                <a asp-controller="Home" asp-action="Index" class="btn btn-primary">Inicio</a>
+                <button type="submit" class="btn btn-success">Actualizar</button>
+            </div>
+        </div>
+        <div class="col-4 offset-2">
+            <img src=@Model.FotoSrc id="imgUser" alt="imagen usuario" width="200" />
+        </div>
+    </div>
 </form>
+
+@section Scripts {
+    <script src="~/js/usuario/PreVisualmagenUser.js" asp-append-verion="true"></script>
+}
