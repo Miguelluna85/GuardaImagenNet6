@@ -4,6 +4,7 @@ using GuardaImagenNet6.ViewModel;
 using GuardaImagenNet6.ViewModel.Usuario;
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting.Internal;
 using System;
 using System.Diagnostics;
@@ -22,9 +23,9 @@ public class HomeController : Controller
         context = _context;
     }
 
-    public IActionResult Index()
+    public async Task<IActionResult> Index()
     {
-        IEnumerable<Usuario> listUserBD = context.Usuarios.ToList();
+        IEnumerable<Usuario> listUserBD = await context.Usuarios.ToListAsync();
         List<UsuarioVM> listUserVM = new List<UsuarioVM>();
 
         foreach (Usuario userDB in listUserBD)
@@ -53,7 +54,7 @@ public class HomeController : Controller
     [HttpPost]
     [ValidateAntiForgeryToken]
     //  revisar
-    public IActionResult Crear([Bind("NombreUsuario,Contrasenya,FotoByte,Activo")] UsuarioVM usuario)
+    public async Task<IActionResult> Crear([Bind("NombreUsuario,Contrasenya,FotoByte,Activo")] UsuarioVM usuario)
     {
         if (usuario == null)
             return BadRequest("Error usuario no valido");
@@ -70,7 +71,7 @@ public class HomeController : Controller
         Usuario user = new Usuario();
         using (var streamPhoto = new MemoryStream())
         {
-            usuario.FotoByte.CopyToAsync(streamPhoto);
+            await usuario.FotoByte.CopyToAsync(streamPhoto);
             user.FotoBd = streamPhoto.ToArray();
         }
 
@@ -79,7 +80,7 @@ public class HomeController : Controller
         user.Estatus = usuario.Activo;
         context.Usuarios.Add(user);
 
-        context.SaveChanges();
+        await context.SaveChangesAsync();
 
         return RedirectToAction("Index");
     }
