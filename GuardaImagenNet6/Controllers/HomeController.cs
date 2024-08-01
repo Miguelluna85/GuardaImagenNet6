@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting.Internal;
 using System;
 using System.Diagnostics;
+using System.Net.Mime;
 
 namespace GuardaImagenNet6.Controllers;
 public class HomeController : Controller
@@ -121,44 +122,45 @@ public class HomeController : Controller
 
     }
 
-
     [HttpPost, ActionName("Actualizar")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int? id, UsuarioVM user)
+    public async Task<IActionResult> Edit(int? id, [Bind("NombreUsuario,Contrasenya,FotoByte,Activo")] UsuarioVM userVM)
     {
-        if (id == null)
+        if (id == null || userVM == null)
             return NotFound();
+
         if (id <= 0)
             return BadRequest("Usuario no encontrado");
 
-        //var usrBD1 = await context.Usuarios.FindAsync(id);
-        var usertToUpdate = await context.Usuarios.AsNoTracking().FirstOrDefaultAsync();
-
-        if (usertToUpdate == null)
-            return BadRequest("Usuario no encontrado");
-
-        if (await TryUpdateModelAsync<Usuario>(
-            usertToUpdate,
-            "",
-            u => u.UserName, u => u.Password, u => u.Estatus))
+        //var usrBD1 = await context.Usuarios.AsNoTracking().FindAsync(id);
+        var userToUpdate = await context.Usuarios.FirstOrDefaultAsync(u => u.Id == id);
+        
+        if (userVM.FotoByte != null)
         {
-            try
+            using (var streamPhoto = new MemoryStream())
             {
-                await context.SaveChangesAsync();
-            }
-            catch (DbUpdateException ex)
-            {
-                ModelState.AddModelError("", "Error a actualizar" + ex.ToString());
+                await userVM.FotoByte.CopyToAsync(streamPhoto);
+                userToUpdate.FotoBd = streamPhoto.ToArray();
             }
         }
 
+        userToUpdate.Id = int.Parse(id.ToString());
+        userToUpdate.Password = string.IsNullOrEmpty(userVM.Contrasenya) ? userToUpdate.Password : userVM.Contrasenya;
+        userToUpdate.Estatus = userVM.Activo;
+        userToUpdate.FechaModifico = DateTime.Now;
 
+        if (await TryUpdateModelAsync<Usuario>(
+            userToUpdate,
+            "",
+            u => u.Password, u => u.Estatus, u => u.FechaModifico
+            ))
+        {
+            await context.SaveChangesAsync();
+
+        }
 
         return RedirectToAction(nameof(Index));
     }
-
-
-
     public async Task<IActionResult> Detalles(int id)
     {
         var userFound = await usuarioVMSearch(id);
@@ -174,6 +176,7 @@ public class HomeController : Controller
         Usuario userDB = await context.Usuarios.FindAsync(id);
         if (userDB == null) return null;
 
+        
         UsuarioVM userFound = new UsuarioVM
         {
             ID = userDB.Id,
@@ -200,7 +203,6 @@ public class HomeController : Controller
         else
         {
             string imgBase64 = Convert.ToBase64String(FotoDB);
-
             return string.Format("data:imagen/*;base64,{0}", imgBase64);
         }
     }
