@@ -1,0 +1,18 @@
+﻿@model GuardaImagenNet6.ViewModel.Usuario.UsuarioVM
+
+@{
+    ViewData["Title"] = "Eliminar Usuario";
+}
+<div class="alert alert-danger">
+    <p>Esta seguro de elimnar el usurio</p>
+
+</div>
+<div class="row">
+  <dl>
+      <dt>ID Usuario:</dt>
+      <dd>@Model.ID</dd>
+
+
+  </dl>
+  <p><a class="btn btn-danger" asp-controller="Home" asp-action="ConfirmarEliminar"></a></p>
+</div>

@@ -32,8 +32,7 @@
                 <td>@Html.CheckBox("Activo_" + user.ID.ToString(), user.Activo ? user.Activo : false, new { @class = "form-check-input" })</td>
                 <td>
                     <a asp-controller="Home" asp-action="Detalles" asp-route-id="@user.ID" class="link-primary">Detalle</a> |
-                    <a asp-controller="Home" asp-action="Actualizar" asp-route-id="@user.ID" class="link-info">Editar</a>|
-                    <a asp-controller="Home" asp-action="Eliminar" asp-route-id="@user.ID" class="link-danger"> Eliminar</a>
+                    <a asp-controller="Home" asp-action="Actualizar" asp-route-id="@user.ID" class="link-info">Editar</a>
                 </td>
             </tr>
         }

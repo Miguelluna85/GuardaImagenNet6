@@ -24,6 +24,8 @@
             <div class="form-group mt-3">
                 <a asp-controller="Home" asp-action="Index" class="btn btn-primary">Inicio</a>
                 <button type="submit" class="btn btn-success">Actualizar</button>
+                <a asp-controller="Home" asp-action="ConfirmarEliminar" asp-route-id="@Model.ID" class="btn btn-danger" >Eliminar</a>
+
             </div>
         </div>
         <div class="col-4 offset-2">
