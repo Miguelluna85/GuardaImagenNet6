@@ -91,7 +91,7 @@ public class HomeController : Controller
     {
         if (id == 0) return BadRequest("Usuario no Proporcionado");
 
-        var userFound = await usuarioVMSearch(id);
+        var userFound = await usuarioVMSearchFirstOr(id);
 
         if (userFound == null)
             return BadRequest("Usuario No Encontrado.");
@@ -134,7 +134,7 @@ public class HomeController : Controller
 
         //var usrBD1 = await context.Usuarios.AsNoTracking().FindAsync(id);
         var userToUpdate = await context.Usuarios.FirstOrDefaultAsync(u => u.Id == id);
-        
+
         if (userVM.FotoByte != null)
         {
             using (var streamPhoto = new MemoryStream())
@@ -163,20 +163,19 @@ public class HomeController : Controller
     }
     public async Task<IActionResult> Detalles(int id)
     {
-        var userFound = await usuarioVMSearch(id);
+        var userFound = await usuarioVMSearchFirstOr(id);
         if (userFound == null)
             return BadRequest("Usuario No Encontrado.");
 
         return View(userFound);
     }
-    private async Task<UsuarioVM> usuarioVMSearch(int id)
+    private async Task<UsuarioVM> usuarioVMSearchFind(int id)
     {
         if (id <= 0) return null;
 
         Usuario userDB = await context.Usuarios.FindAsync(id);
         if (userDB == null) return null;
 
-        
         UsuarioVM userFound = new UsuarioVM
         {
             ID = userDB.Id,
@@ -188,6 +187,26 @@ public class HomeController : Controller
         };
         return userFound;
     }
+    private async Task<UsuarioVM> usuarioVMSearchFirstOr(int id)
+    {
+        if (id <= 0) return null;
+
+        Usuario userDB = await context.Usuarios.AsNoTracking().FirstOrDefaultAsync(u => u.Id == id);
+        if (userDB == null) return null;
+
+        UsuarioVM userFound = new UsuarioVM
+        {
+            ID = userDB.Id,
+            NombreUsuario = userDB.UserName,
+            Contrasenya = userDB.Password,
+            FechaAlta = userDB.FechaAlta,
+            FotoSrc = ImageBdToURL(userDB.FotoBd),
+            Activo = userDB.Estatus ?? false
+        };
+        return userFound;
+    }
+
+
     private string ImageBdToURL(byte[] FotoDB)
     {
         if (FotoDB == null || FotoDB.Length == 0)
@@ -206,10 +225,38 @@ public class HomeController : Controller
             return string.Format("data:imagen/*;base64,{0}", imgBase64);
         }
     }
-    public IActionResult Eliminar()
+
+    [HttpGet, ActionName("ConfirmarEliminar")]
+    public async Task<IActionResult> Eliminar(int? id)
     {
-        return View();
+        if (id == null) return BadRequest("Usuario no encontrado");
+
+        var userVM = await usuarioVMSearchFirstOr(int.Parse(id.ToString()));
+
+        if (userVM == null) return BadRequest("Usuario no encontrado");
+
+        return View(userVM);
     }
+
+    [HttpPost, ActionName("ConfirmarEliminar")]
+    public async Task<IActionResult> Eliminar(int id)
+    {
+        if (id <= 0)
+            return BadRequest("");
+
+        var userToDeleted = await context.Usuarios.FindAsync(id);
+
+        if (userToDeleted == null)
+            return BadRequest("Usuario no encontrado");
+
+        context.Usuarios.Remove(userToDeleted);
+        context.SaveChanges();
+
+        return View(nameof(Index));
+    }
+
+
+
     public IActionResult Contacto()
     {
         return View();

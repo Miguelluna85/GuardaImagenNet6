@@ -8,11 +8,17 @@
 
 </div>
 <div class="row">
-  <dl>
-      <dt>ID Usuario:</dt>
-      <dd>@Model.ID</dd>
-
-
-  </dl>
-  <p><a class="btn btn-danger" asp-controller="Home" asp-action="ConfirmarEliminar"></a></p>
+    <dl>
+        <dt>ID Usuario:</dt>
+        <dd>@Model.ID</dd>
+        <dt>Nombre</dt>
+        <dd>@Model.NombreUsuario</dd>
+        <dt>Activo</dt>
+        <dd>@Model.Activo</dd>
+        <dt></dt>
+        <dd><img src="@Model.FotoSrc" alt="foto usuario" /></dd>
+    </dl>
+    <form asp-controller="Home" asp-action="Eliminar" method="post" role="form">
+        <p><button type="submit" class="btn btn-danger"></button></p>
+    </form>
 </div>
