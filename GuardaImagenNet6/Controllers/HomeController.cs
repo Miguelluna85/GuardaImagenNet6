@@ -206,7 +206,6 @@ public class HomeController : Controller
         return userFound;
     }
 
-
     private string ImageBdToURL(byte[] FotoDB)
     {
         if (FotoDB == null || FotoDB.Length == 0)
@@ -226,20 +225,22 @@ public class HomeController : Controller
         }
     }
 
-    [HttpGet, ActionName("ConfirmarEliminar")]
-    public async Task<IActionResult> Eliminar(int? id)
+    [HttpGet, ActionName("Eliminar")]
+    public async Task<IActionResult> Delete(int? id)
     {
-        if (id == null) return BadRequest("Usuario no encontrado");
+        if (id == null) 
+            return BadRequest("Usuario no encontrado");
 
         var userVM = await usuarioVMSearchFirstOr(int.Parse(id.ToString()));
 
-        if (userVM == null) return BadRequest("Usuario no encontrado");
+        if (userVM == null) 
+            return BadRequest("Usuario no encontrado");
 
-        return View(userVM);
+        return View("Eliminar",userVM);
     }
 
-    [HttpPost, ActionName("ConfirmarEliminar")]
-    public async Task<IActionResult> Eliminar(int id)
+    [HttpPost, ActionName("Eliminar")]
+    public async Task<IActionResult> DeleteConfirmed(int id)
     {
         if (id <= 0)
             return BadRequest("");
@@ -252,7 +253,12 @@ public class HomeController : Controller
         context.Usuarios.Remove(userToDeleted);
         context.SaveChanges();
 
-        return View(nameof(Index));
+        return RedirectToAction(nameof(Index));
+        //para mejorar el rendimiento, solo que no elimina encascada
+        //Student studentToDelete = new Student() { ID = id };
+        //_context.Entry(studentToDelete).State = EntityState.Deleted;
+        //await _context.SaveChangesAsync();
+        //return RedirectToAction(nameof(Index));
     }
 
 

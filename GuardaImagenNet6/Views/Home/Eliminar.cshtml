@@ -4,21 +4,21 @@
     ViewData["Title"] = "Eliminar Usuario";
 }
 <div class="alert alert-danger">
-    <p>Esta seguro de elimnar el usurio</p>
+    <p class="text-black">Esta seguro de eliminar el usuario?</p>
 
 </div>
 <div class="row">
     <dl>
         <dt>ID Usuario:</dt>
         <dd>@Model.ID</dd>
-        <dt>Nombre</dt>
+        <dt>Nombre Usuario:</dt>
         <dd>@Model.NombreUsuario</dd>
+        <dt>Foto:</dt>
+        <dd><img src="@Model.FotoSrc" alt="foto usuario" width="80" /></dd>
         <dt>Activo</dt>
-        <dd>@Model.Activo</dd>
-        <dt></dt>
-        <dd><img src="@Model.FotoSrc" alt="foto usuario" /></dd>
+        <dd>@Html.CheckBox("activo_"+@Model.ID,@Model.Activo,new {@class="for-check-input"})</dd>
     </dl>
     <form asp-controller="Home" asp-action="Eliminar" method="post" role="form">
-        <p><button type="submit" class="btn btn-danger"></button></p>
+        <p><button type="submit" class="btn btn-danger">Eliminar</button></p>
     </form>
 </div>
