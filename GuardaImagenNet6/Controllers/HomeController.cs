@@ -5,6 +5,7 @@ using GuardaImagenNet6.ViewModel.Usuario;
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Hosting.Internal;
 using System;
 using System.Diagnostics;
@@ -57,30 +58,33 @@ public class HomeController : Controller
     //  revisar
     public async Task<IActionResult> Crear([Bind("NombreUsuario,Contrasenya,FotoByte,Activo")] UsuarioVM usuario)
     {
+        if (!ModelState.IsValid)
+            return View(usuario);
+
         if (usuario == null)
             return BadRequest("Error usuario no valido");
 
-        if (usuario.FotoByte == null || usuario.FotoByte.Length == 0)
-            return BadRequest("Imagen no seleccionada");
+        Usuario userBD = new Usuario();
 
-        string photoName = Path.GetFileName(usuario.FotoByte.FileName);
-        string extPhoto = Path.GetExtension(usuario.FotoByte.FileName);
-        ImagenesUtility imagenTools = new ImagenesUtility();
-
-        if (!imagenTools.ExtensionsFotosValid(extPhoto))
-            return BadRequest("El archivo no es una imagen valida");
-
-        Usuario user = new Usuario();
-        using (var streamPhoto = new MemoryStream())
+        if (usuario.FotoByte != null)
         {
-            await usuario.FotoByte.CopyToAsync(streamPhoto);
-            user.FotoBd = streamPhoto.ToArray();
+            string photoName = Path.GetFileName(usuario.FotoByte.FileName);
+            string extPhoto = Path.GetExtension(usuario.FotoByte.FileName);
+
+            if (!HelperImagenes.ExtensionsFotosValid(extPhoto))
+                return BadRequest("El archivo no es una imagen valida");
+
+            using (var streamPhoto = new MemoryStream())
+            {
+                await usuario.FotoByte.CopyToAsync(streamPhoto);
+                userBD.FotoBd = streamPhoto.ToArray();
+            }
         }
 
-        user.UserName = usuario.NombreUsuario;
-        user.Password = usuario.Contrasenya;
-        user.Estatus = usuario.Activo;
-        context.Usuarios.Add(user);
+        userBD.UserName = usuario.NombreUsuario;
+        userBD.Password = usuario.Contrasenya;
+        userBD.Estatus = usuario.Activo;
+        context.Usuarios.Add(userBD);
 
         await context.SaveChangesAsync();
 
@@ -143,6 +147,10 @@ public class HomeController : Controller
                 userToUpdate.FotoBd = streamPhoto.ToArray();
             }
         }
+        else
+        {
+            userToUpdate.FotoBd = null;
+        }
 
         userToUpdate.Id = int.Parse(id.ToString());
         userToUpdate.Password = string.IsNullOrEmpty(userVM.Contrasenya) ? userToUpdate.Password : userVM.Contrasenya;
@@ -152,11 +160,10 @@ public class HomeController : Controller
         if (await TryUpdateModelAsync<Usuario>(
             userToUpdate,
             "",
-            u => u.Password, u => u.Estatus, u => u.FechaModifico
+            u => u.Password, u => u.Estatus, u => u.FechaModifico, u => u.FotoBd
             ))
         {
             await context.SaveChangesAsync();
-
         }
 
         return RedirectToAction(nameof(Index));
@@ -215,7 +222,6 @@ public class HomeController : Controller
             var path1 = Path.Combine(env.WebRootPath, foldername, filename);
             var path2 = Path.Combine("\\", foldername, filename);//ruta relativa img
             Uri location = new Uri($"{Request.Scheme}://{Request.Host}/{foldername}/{filename}");//ruta absoluta
-
             return location.AbsoluteUri;
         }
         else
@@ -228,15 +234,15 @@ public class HomeController : Controller
     [HttpGet, ActionName("Eliminar")]
     public async Task<IActionResult> Delete(int? id)
     {
-        if (id == null) 
+        if (id == null)
             return BadRequest("Usuario no encontrado");
 
         var userVM = await usuarioVMSearchFirstOr(int.Parse(id.ToString()));
 
-        if (userVM == null) 
+        if (userVM == null)
             return BadRequest("Usuario no encontrado");
 
-        return View("Eliminar",userVM);
+        return View("Eliminar", userVM);
     }
 
     [HttpPost, ActionName("Eliminar")]
@@ -260,8 +266,6 @@ public class HomeController : Controller
         //await _context.SaveChangesAsync();
         //return RedirectToAction(nameof(Index));
     }
-
-
 
     public IActionResult Contacto()
     {
