@@ -130,11 +130,9 @@ public class HomeController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int? id, [Bind("NombreUsuario,Contrasenya,FotoByte,Activo")] UsuarioVM userVM)
     {
-        if (id == null || userVM == null)
-            return NotFound();
-
-        if (id <= 0)
-            return BadRequest("Usuario no encontrado");
+        if (!ModelState.IsValid) return View(userVM);
+        if (id == null && userVM == null) return NotFound();
+        if (id <= 0) return BadRequest("Usuario no encontrado");
 
         //var usrBD1 = await context.Usuarios.AsNoTracking().FindAsync(id);
         var userToUpdate = await context.Usuarios.FirstOrDefaultAsync(u => u.Id == id);
@@ -149,7 +147,7 @@ public class HomeController : Controller
         }
         else
         {
-            userToUpdate.FotoBd = null;
+            //userToUpdate.FotoBd = userToUpdate.;
         }
 
         userToUpdate.Id = int.Parse(id.ToString());

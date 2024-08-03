@@ -10,9 +10,11 @@
         <div class="col-5">
             <div class="form-group mt-3">
                 <input type="text" class="form-control" asp-for="NombreUsuario" placeholder="Nombre Usuario" />
+                <span asp-validation-for="NombreUsuario" class="text-danger"></span>
             </div>
             <div class="form-group  mt-3">
                 <input type="password" class="form-control" asp-for="Contrasenya" placeholder="Contraseña" />
+            <span asp-validation-for="Contrasenya" class="text-danger"></span>
             </div>
             <div class="form-group mt-3">
                 <input type="file" class="form-control-file" asp-for="FotoByte" accept="image/*" />
@@ -35,5 +37,6 @@
 </form>
 
 @section Scripts {
+    <partial name="_ValidationScriptsPartial.cshtml" />
     <script src="~/js/usuario/PreVisualmagenUser.js" asp-append-verion="true"></script>
 }
