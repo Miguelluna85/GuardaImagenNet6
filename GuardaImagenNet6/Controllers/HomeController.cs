@@ -128,7 +128,7 @@ public class HomeController : Controller
 
     [HttpPost, ActionName("Actualizar")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int? id, [Bind("NombreUsuario,Contrasenya,FotoByte,Activo")] UsuarioVM userVM)
+    public async Task<IActionResult> Edit(int? id, [Bind("NombreUsuario, Contrasenya,FotoByte,Activo")] UsuarioVM userVM)
     {
         if (!ModelState.IsValid) return View(userVM);
         if (id == null && userVM == null) return NotFound();
@@ -146,8 +146,7 @@ public class HomeController : Controller
             }
         }
         else
-        {
-            //userToUpdate.FotoBd = userToUpdate.;
+        { 
         }
 
         userToUpdate.Id = int.Parse(id.ToString());
