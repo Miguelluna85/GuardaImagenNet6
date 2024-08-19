@@ -3,39 +3,7 @@
     ViewData["Title"] = "Usuarios";
 }
 
-<h3 class="text-center mb-4">Listado de Usuarios</h3>
-<p class="text-end">
-    <a asp-controller="Home" asp-action="Crear" class="btn btn-primary ">Nuevo Usuario</a>
-</p>
+<h3 class="text-center mb-4">
+    Proyecto para guardar imagenes como bario y ruta en BDD con SQL SERVER
+    </h3>
 <hr />
-<table class="table table-hover">
-    <thead>
-        <tr class="text-center">
-            <th>@Html.DisplayName("ID")</th>
-            <th>@Html.DisplayName("Usuario")</th>
-            <th>@Html.DisplayName("Contraseña")</th>
-            <th>Foto</th>
-            <th>@Html.DisplayName("Fecha Alta")</th>
-            <th>@Html.DisplayName("Estus")</th>
-            <th>@Html.DisplayName("Acciones")</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (GuardaImagenNet6.ViewModel.Usuario.UsuarioVM user in Model)
-        {
-            <tr class="text-center">
-                <td>@Html.DisplayFor(item => user.ID)</td>
-                <td>@Html.DisplayFor(item => user.NombreUsuario)</td>
-                <td>@Html.DisplayFor(item => user.Contrasenya)</td>
-                <td>@Html.DisplayFor(item => user.FechaAlta)</td>
-                <td><img id="imgUser_@user.ID" src=@user.FotoSrc asp-append-version="true" Width="50" alt="imagen usuario" /></td>
-                <td>@Html.CheckBox("Activo_" + user.ID.ToString(), user.Activo ? user.Activo : false, new { @class = "form-check-input" })</td>
-                <td>
-                    <a asp-controller="Home" asp-action="Detalles" asp-route-id="@user.ID" class="link-primary">Detalle</a> |
-                    <a asp-controller="Home" asp-action="Actualizar" asp-route-id="@user.ID" class="link-info">Editar</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-
-</table>
