@@ -1,0 +1,52 @@
+﻿@model GuardaImagenNet6.ViewModel.Usuario.UsuarioVM
+@{
+    ViewData["title"] = "Detalles Usuario";
+}
+
+<h3>Detalle Usuario</h3>
+<br />
+<hr />
+<div class="row">
+    <div class="col-6">
+        <div class="row">
+            <div class="col-3">
+                <label>Usuario: </label>
+            </div>
+            <div class="col-4">
+                <label>@Model.NombreUsuario</label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-3">
+                <label>Contraseña: </label>
+            </div>
+            <div class="col-4">
+                <label>@Model.Contrasenya</label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-3">
+                <label>Fecha Registro: </label>
+            </div>
+            <div class="col-4">
+                <label>@Model.FechaAlta</label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-3">
+                <input type="checkbox" checked=@Model.Activo class="form-check-input" />
+                <label asp-for="Activo" class="form-label"></label>
+            </div>
+        </div>
+    </div>
+    <div class="col-2">
+        <img src=@Model.FotoSrc id="imgUser" alt="imagen usuario" width="200" />
+    </div>
+</div>
+<div class="row mt-5">
+    <div class="col-5">
+        <a asp-controller="Home" asp-action="Index" class="btn btn-primary ">Inicio</a>
+        <a asp-controller="Home" asp-action="Crear" class="btn btn-info offset-1">Nuevo Usuario</a>
+    </div>
+</div>
+
