@@ -33,8 +33,8 @@
                 <td><img id="imgUser_@user.ID" src=@user.FotoSrc asp-append-version="true" Width="50" alt="imagen usuario" /></td>
                 <td>@Html.CheckBox("Activo_" + user.ID.ToString(), user.Activo ? user.Activo : false, new { @class = "form-check-input" })</td>
                 <td>
-                    <a asp-controller="FotoBinary" asp-action="Detalle" asp-route-id="@user.ID" class="link-primary">Detalle</a> |
-                    <a asp-controller="FotoBinary" asp-action="Editar" asp-route-id="@user.ID" class="link-info">Editar</a>
+                    <a asp-controller="FotoPath" asp-action="Detalle" asp-route-id="@user.ID" class="link-primary">Detalle</a> |
+                    <a asp-controller="FotoPath" asp-action="Editar" asp-route-id="@user.ID" class="link-info">Editar</a>
                 </td>
             </tr>
         }

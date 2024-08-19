@@ -12,10 +12,10 @@ namespace GuardaImagenNet6.Controllers
         private readonly PruebasDBContext context;
         private readonly IWebHostEnvironment env;
 
-        public FotoBinaryController(IWebHostEnvironment _env, ILogger<HomeController> logger, PruebasDBContext _context)
+        public FotoBinaryController(IWebHostEnvironment _env, PruebasDBContext _context)
         {
-            env = _env;
             context = _context;
+            env = _env;
         }
         public async Task<IActionResult> Listado()
         {
