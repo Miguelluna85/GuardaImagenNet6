@@ -1,6 +1,6 @@
-﻿using GuardaImagenNet6.Models;
+﻿using GuardaImagenNet6.Helpers;
+using GuardaImagenNet6.Models;
 using GuardaImagenNet6.Models.Contexto;
-using GuardaImagenNet6.ViewModel;
 using GuardaImagenNet6.ViewModel.Usuario;
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Mvc;

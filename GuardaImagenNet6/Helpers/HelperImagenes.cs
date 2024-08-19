@@ -1,4 +1,4 @@
-﻿namespace GuardaImagenNet6.ViewModel;
+﻿namespace GuardaImagenNet6.Helpers;
 
 public static class HelperImagenes
 {
@@ -34,6 +34,7 @@ public static class HelperImagenes
         var path2 = Path.Combine("\\", foldername, filename);//ruta relativa img
         return path1;
     }
+    
     //private static string ImageBdToURL(IWebHostEnvironment env, byte[] FotoDB)
     //{
     //    if (FotoDB == null || FotoDB.Length == 0)
@@ -53,15 +54,15 @@ public static class HelperImagenes
     //    }
     //}
 
-    public static Byte[] Imagen_A_Bytes(String ruta)
+    public static byte[] Imagen_A_Bytes(string ruta)
     {
         FileStream foto = new FileStream(ruta, FileMode.OpenOrCreate, FileAccess.ReadWrite);
-        Byte[] arreglo = new Byte[foto.Length];
+        byte[] arreglo = new byte[foto.Length];
         BinaryReader reader = new BinaryReader(foto);
         arreglo = reader.ReadBytes(Convert.ToInt32(foto.Length));
         return arreglo;
     }
-   
+
     //public static String Redimensionar(Image Imagen_Original, string nombre)
     //{
     //    //RUTA DEL DIRECTORIO TEMPORAL
