@@ -54,6 +54,8 @@ namespace GuardaImagenNet6.Controllers
 
             if (usuario == null)
                 return BadRequest("Error usuario no valido");
+            
+            //buscar si un usuario con ese nombre ya existe.
 
             Usuario userBD = new Usuario();
 
@@ -79,7 +81,7 @@ namespace GuardaImagenNet6.Controllers
 
             await context.SaveChangesAsync();
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Listado","FotoBinary");
         }
 
         [HttpGet,ActionName("Editar")]
@@ -155,7 +157,7 @@ namespace GuardaImagenNet6.Controllers
                 await context.SaveChangesAsync();
             }
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Listado));
         }
 
         public async Task<IActionResult> Detalle(int id)
@@ -195,7 +197,7 @@ namespace GuardaImagenNet6.Controllers
             context.Usuarios.Remove(userToDeleted);
             context.SaveChanges();
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Listado));
             //para mejorar el rendimiento, solo que no elimina encascada
             //Student studentToDelete = new Student() { ID = id };
             //_context.Entry(studentToDelete).State = EntityState.Deleted;
