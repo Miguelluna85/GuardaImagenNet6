@@ -1,5 +1,6 @@
 ﻿using GuardaImagenNet6.Models;
 using GuardaImagenNet6.Models.Context;
+using GuardaImagenNet6.Models.Contexto;
 using GuardaImagenNet6.ViewModel.Usuario;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -8,10 +9,10 @@ namespace GuardaImagenNet6.Controllers
 {
     public class FotoPathController : Controller
     {
-        private readonly PruebasDbContext context;
+        private readonly PruebasDBContext context;
         private readonly IWebHostEnvironment env;
 
-        public FotoPathController(PruebasDbContext Context, IWebHostEnvironment Env)
+        public FotoPathController(IWebHostEnvironment Env, PruebasDBContext Context)
         {
             this.context = Context;
             this.env = Env;
