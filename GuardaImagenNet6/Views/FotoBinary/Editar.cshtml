@@ -5,7 +5,7 @@
 
 <h3>Actualizar Usuario</h3>
 
-<form asp-controller="Home" asp-action="Actualizar" method="post" enctype="multipart/form-data" role="form">
+<form asp-controller="FotoBinary" asp-action="Editar" method="post" enctype="multipart/form-data" role="form">
     <div class="row">
         <div class="col-5">
             <div class="form-group mt-3">
@@ -26,7 +26,7 @@
             <div class="form-group mt-3">
                 <button type="submit" class="btn btn-success px-3 mx-2">Actualizar</button>
                 <a asp-controller="Home" asp-action="Index" class="btn btn-primary px-4 mx-2 ">Inicio</a>
-                <a asp-controller="Home" asp-action="Eliminar" asp-route-id="@Model.ID" class="btn btn-danger px-4">Eliminar</a>
+                <a asp-controller="FotoBinary" asp-action="Eliminar" asp-route-id="@Model.ID" class="btn btn-danger px-4">Eliminar</a>
 
             </div>
         </div>

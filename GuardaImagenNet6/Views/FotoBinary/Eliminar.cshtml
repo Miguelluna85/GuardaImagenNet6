@@ -18,7 +18,7 @@
         <dt>Activo</dt>
         <dd>@Html.CheckBox("activo_" + @Model.ID, @Model.Activo, new { @class = "for-check-input" })</dd>
     </dl>
-    <form asp-controller="Home" asp-action="Eliminar" method="post" role="form">
+    <form asp-controller="FotoBinary" asp-action="Eliminar" method="post" role="form">
         <p><button type="submit" class="btn btn-danger">Eliminar</button></p>
     </form>
 </div>
