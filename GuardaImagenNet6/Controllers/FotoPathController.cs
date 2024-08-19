@@ -1,6 +1,7 @@
 ﻿using GuardaImagenNet6.Helpers;
 using GuardaImagenNet6.Models;
 using GuardaImagenNet6.Models.Contexto;
+using GuardaImagenNet6.Providers;
 using GuardaImagenNet6.ViewModel.Usuario;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -20,6 +21,17 @@ namespace GuardaImagenNet6.Controllers
 
         public async Task<IActionResult> Listado()
         {
+            var path1 = env.ApplicationName;
+            var path2 = env.EnvironmentName;
+            var path3 = env.ContentRootPath;
+            var path4 = env.ContentRootFileProvider;
+            var path5 = env.WebRootFileProvider;
+            var path6 = env.WebRootPath;
+            var path7 = env.IsEnvironment;
+
+
+
+
             IEnumerable<Usuario> listUserDB = await context.Usuarios.AsNoTracking().ToListAsync();
             List<UsuarioVM> listUserVM = new List<UsuarioVM>();
 
@@ -68,11 +80,16 @@ namespace GuardaImagenNet6.Controllers
                 if (!HelperImagenes.ExtensionsFotosValid(extPhoto))
                     return BadRequest("El archivo no es una imagen valida");
 
-                using (var streamPhoto = new MemoryStream())
+           
+                string foldername = @"image\Usuario";                
+                string path = Path.Combine(env.WebRootPath, foldername, photoName);
+                 
+                using (Stream stream = new FileStream(path, FileMode.Create))
                 {
-                    await usuario.FotoByte.CopyToAsync(streamPhoto);
-                    userBD.FotoBd = streamPhoto.ToArray();
+                    await usuario.FotoByte.CopyToAsync(stream);
                 }
+                userBD.FotoPath = path;
+
             }
 
             userBD.UserName = usuario.NombreUsuario;
