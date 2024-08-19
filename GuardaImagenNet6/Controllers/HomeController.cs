@@ -175,10 +175,12 @@ public class HomeController : Controller
     }
     private async Task<UsuarioVM> usuarioVMSearchFind(int id)
     {
-        if (id <= 0) return null;
+        if (id <= 0) 
+            return null;
 
         Usuario userDB = await context.Usuarios.FindAsync(id);
-        if (userDB == null) return null;
+        if (userDB == null)
+            return null;
 
         UsuarioVM userFound = new UsuarioVM
         {
