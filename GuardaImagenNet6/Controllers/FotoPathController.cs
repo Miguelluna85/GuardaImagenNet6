@@ -37,5 +37,19 @@ namespace GuardaImagenNet6.Controllers
             }
             return View(listUserVM);
         }
+
+        [HttpGet, ActionName("Create")]
+        public IActionResult Crear()
+        {
+            return View();
+        }
+
+        [HttpGet,ActionName("Edit")]
+        public IActionResult Editar()
+        {
+            return View();
+        }
+
+
     }
 }
