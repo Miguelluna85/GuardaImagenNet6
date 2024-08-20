@@ -181,6 +181,43 @@ namespace GuardaImagenNet6.Controllers
             return View(userFound);
         }
 
+
+        [HttpGet,ActionName("Delete")]
+        public async Task<IActionResult> Eliminar(int? id)
+        {
+            if (id == null)
+                return BadRequest("Usuario no encontrado");
+
+            var userVM = await usuarioVMSearchFirstOr(int.Parse(id.ToString()));
+
+            if (userVM == null)
+                return BadRequest("Usuario no encontrado");
+
+            return View("Delete", userVM);
+        }
+
+        [HttpPost,ActionName("Delete")]
+        public async Task<IActionResult> Eliminar(int id)
+        {
+            if (id <= 0)
+                return BadRequest("Usuario no proporcionado");
+
+            var userToDeleted = await context.Usuarios.FindAsync(id);
+
+            if (userToDeleted == null)
+                return BadRequest("Usuario no encontrado");
+
+            context.Usuarios.Remove(userToDeleted);
+            context.SaveChanges();
+
+            return RedirectToAction(nameof(Listado));
+
+            //para mejorar el rendimiento, solo que no elimina encascada
+            //Student studentToDelete = new Student() { ID = id };
+            //_context.Entry(studentToDelete).State = EntityState.Deleted;
+            //await _context.SaveChangesAsync();
+            //return RedirectToAction(nameof(Index));
+        }
         private async Task<UsuarioVM> usuarioVMSearchFind(int id)
         {
             if (id <= 0)
