@@ -12,6 +12,8 @@ namespace GuardaImagenNet6.Controllers
     {
         private readonly PruebasDBContext context;
         private readonly IWebHostEnvironment env;
+        private string folderName = @"image\Usuario\";
+        private string imgDefault = "userDefault.png";
 
         public FotoPathController(IWebHostEnvironment Env, PruebasDBContext Context)
         {
@@ -20,7 +22,8 @@ namespace GuardaImagenNet6.Controllers
         }
 
         public async Task<IActionResult> Listado()
-        {
+        {           
+            
             IEnumerable<Usuario> listUserDB = await context.Usuarios.AsNoTracking().ToListAsync();
             List<UsuarioVM> listUserVM = new List<UsuarioVM>();
 
@@ -31,7 +34,7 @@ namespace GuardaImagenNet6.Controllers
                     ID = userDB.Id,
                     NombreUsuario = userDB.UserName,
                     Contrasenya = userDB.Password,
-                    FotoSrc = env.WebRootPath + @"\" + userDB.FotoPath,
+                    FotoSrc = Path.Combine("\\","",userDB.FotoPath?? folderName+imgDefault),
                     Activo = userDB.Estatus ?? false,
                     FechaAlta = userDB.FechaAlta
                 };
@@ -72,9 +75,9 @@ namespace GuardaImagenNet6.Controllers
 
                 string NameGuidFoto = idGuid.ToString().Replace("-", "_") + "_"
                     + usuario.NombreUsuario + "_" + DateTime.Now.ToString("yyyyMMddHHmmss") + extPhoto;
-                string foldername = @"image\Usuario";
-                string rutaFoto = foldername + @"\" + NameGuidFoto;
-                string path = Path.Combine(env.WebRootPath, foldername, NameGuidFoto);
+                
+                string rutaFoto = folderName  + NameGuidFoto;
+                string path = Path.Combine(env.WebRootPath, folderName, NameGuidFoto);
 
                 using (Stream stream = new FileStream(path, FileMode.Create))
                 {
@@ -92,7 +95,7 @@ namespace GuardaImagenNet6.Controllers
 
             await context.SaveChangesAsync();
 
-            return RedirectToAction("Listado", "FotoBinary");
+            return RedirectToAction("Listado", "FotoPath");
         }
 
 
