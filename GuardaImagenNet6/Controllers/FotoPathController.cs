@@ -21,17 +21,6 @@ namespace GuardaImagenNet6.Controllers
 
         public async Task<IActionResult> Listado()
         {
-            var path1 = env.ApplicationName;
-            var path2 = env.EnvironmentName;
-            var path3 = env.ContentRootPath;
-            var path4 = env.ContentRootFileProvider;
-            var path5 = env.WebRootFileProvider;
-            var path6 = env.WebRootPath;
-            var path7 = env.IsEnvironment;
-
-
-
-
             IEnumerable<Usuario> listUserDB = await context.Usuarios.AsNoTracking().ToListAsync();
             List<UsuarioVM> listUserVM = new List<UsuarioVM>();
 
@@ -42,7 +31,7 @@ namespace GuardaImagenNet6.Controllers
                     ID = userDB.Id,
                     NombreUsuario = userDB.UserName,
                     Contrasenya = userDB.Password,
-                    FotoSrc = userDB.FotoPath,
+                    FotoSrc = env.WebRootPath + @"\" + userDB.FotoPath,
                     Activo = userDB.Estatus ?? false,
                     FechaAlta = userDB.FechaAlta
                 };
@@ -54,11 +43,11 @@ namespace GuardaImagenNet6.Controllers
         [HttpGet, ActionName("Create")]
         public IActionResult Crear()
         {
-            
+
             return View();
         }
 
-        [HttpPost,ActionName("Create")]
+        [HttpPost, ActionName("Create")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Crear([Bind("NombreUsuario,Contrasenya,FotoByte,Activo")] UsuarioVM usuario)
         {
@@ -74,21 +63,25 @@ namespace GuardaImagenNet6.Controllers
 
             if (usuario.FotoByte != null)
             {
-                string photoName = Path.GetFileName(usuario.FotoByte.FileName);
+                Guid idGuid = Guid.NewGuid();
+                // string photoName = Path.GetFileName(usuario.FotoByte.FileName);
                 string extPhoto = Path.GetExtension(usuario.FotoByte.FileName);
 
                 if (!HelperImagenes.ExtensionsFotosValid(extPhoto))
                     return BadRequest("El archivo no es una imagen valida");
 
-           
-                string foldername = @"image\Usuario";                
-                string path = Path.Combine(env.WebRootPath, foldername, photoName);
-                 
+                string NameGuidFoto = idGuid.ToString().Replace("-", "_") + "_"
+                    + usuario.NombreUsuario + "_" + DateTime.Now.ToString("yyyyMMddHHmmss") + extPhoto;
+                string foldername = @"image\Usuario";
+                string rutaFoto = foldername + @"\" + NameGuidFoto;
+                string path = Path.Combine(env.WebRootPath, foldername, NameGuidFoto);
+
                 using (Stream stream = new FileStream(path, FileMode.Create))
                 {
                     await usuario.FotoByte.CopyToAsync(stream);
                 }
-                userBD.FotoPath = path;
+
+                userBD.FotoPath = rutaFoto;
 
             }
 
@@ -103,7 +96,7 @@ namespace GuardaImagenNet6.Controllers
         }
 
 
-        [HttpGet,ActionName("Edit")]
+        [HttpGet, ActionName("Edit")]
         public IActionResult Edit()
         {
             return View();
