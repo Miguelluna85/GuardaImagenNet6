@@ -22,8 +22,8 @@ namespace GuardaImagenNet6.Controllers
         }
 
         public async Task<IActionResult> Listado()
-        {           
-            
+        {
+
             IEnumerable<Usuario> listUserDB = await context.Usuarios.AsNoTracking().ToListAsync();
             List<UsuarioVM> listUserVM = new List<UsuarioVM>();
 
@@ -34,7 +34,7 @@ namespace GuardaImagenNet6.Controllers
                     ID = userDB.Id,
                     NombreUsuario = userDB.UserName,
                     Contrasenya = userDB.Password,
-                    FotoSrc = Path.Combine("\\","",userDB.FotoPath?? folderName+imgDefault),
+                    FotoPath = ImagePathDBToURL( userDB.FotoPath),
                     Activo = userDB.Estatus ?? false,
                     FechaAlta = userDB.FechaAlta
                 };
@@ -75,8 +75,8 @@ namespace GuardaImagenNet6.Controllers
 
                 string NameGuidFoto = idGuid.ToString().Replace("-", "_") + "_"
                     + usuario.NombreUsuario + "_" + DateTime.Now.ToString("yyyyMMddHHmmss") + extPhoto;
-                
-                string rutaFoto = folderName  + NameGuidFoto;
+
+                string rutaFoto = folderName + NameGuidFoto;
                 string path = Path.Combine(env.WebRootPath, folderName, NameGuidFoto);
 
                 using (Stream stream = new FileStream(path, FileMode.Create))
@@ -100,16 +100,77 @@ namespace GuardaImagenNet6.Controllers
 
 
         [HttpGet, ActionName("Edit")]
-        public IActionResult Edit()
+        public async Task<IActionResult> Edit(int id)
         {
-            return View();
+            if (id == 0) return BadRequest("Usuario no Proporcionado");
+
+            var userFound = await usuarioVMSearchFirstOr(id);
+
+            if (userFound == null)
+                return BadRequest("Usuario No Encontrado.");
+
+            return View(userFound);
         }
 
         [HttpGet, ActionName("details")]
-        public IActionResult Detalle()
+        public async Task<ActionResult> Detalle(int id)
         {
-            return View();
+            var userFound = await usuarioVMSearchFirstOr(id);
+
+            if (userFound == null)
+                return BadRequest("Usuario No Encontrado.");
+
+            return View(userFound);
         }
 
+
+        private async Task<UsuarioVM> usuarioVMSearchFind(int id)
+        {
+            if (id <= 0)
+                return null;
+
+            Usuario userDB = await context.Usuarios.FindAsync(id);
+            if (userDB == null)
+                return null;
+
+            UsuarioVM userFound = new UsuarioVM
+            {
+                ID = userDB.Id,
+                NombreUsuario = userDB.UserName,
+                Contrasenya = userDB.Password,
+                FechaAlta = userDB.FechaAlta,
+                FotoPath = ImagePathDBToURL(userDB.FotoPath),
+                Activo = userDB.Estatus ?? false
+            };
+            return userFound;
+        }
+
+        private async Task<UsuarioVM> usuarioVMSearchFirstOr(int id)
+        {
+            if (id <= 0) return null;
+
+            Usuario userDB = await context.Usuarios.AsNoTracking().FirstOrDefaultAsync(u => u.Id == id);
+            if (userDB == null) return null;
+
+            UsuarioVM userFound = new UsuarioVM
+            {
+                ID = userDB.Id,
+                NombreUsuario = userDB.UserName,
+                Contrasenya = userDB.Password,
+                FechaAlta = userDB.FechaAlta,
+                FotoPath = ImagePathDBToURL(userDB.FotoPath),
+                Activo = userDB.Estatus ?? false
+            };
+            return userFound;
+        }
+
+        private string ImagePathDBToURL(string pathFotoBD)
+        {
+            //Uri location = new Uri($"{Request.Scheme}://{Request.Host}/{foldername}/{filename}");//ruta uri absoluta
+           
+            string path = Path.Combine("\\", pathFotoBD ?? folderName + imgDefault);
+
+            return path;
+        }
     }
 }
