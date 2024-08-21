@@ -23,8 +23,10 @@ namespace GuardaImagenNet6.Controllers
 
         public async Task<IActionResult> Listado()
         {
-
-            IEnumerable<Usuario> listUserDB = await context.Usuarios.AsNoTracking().ToListAsync();
+            IEnumerable<Usuario> listUserDB = await context.Usuarios
+                .Where(u=>u.GuardaFotoDisco==false)
+                .AsNoTracking()
+                .ToListAsync();
             List<UsuarioVM> listUserVM = new List<UsuarioVM>();
 
             foreach (Usuario userDB in listUserDB)
@@ -91,6 +93,7 @@ namespace GuardaImagenNet6.Controllers
             userBD.UserName = usuario.NombreUsuario;
             userBD.Password = usuario.Contrasenya;
             userBD.Estatus = usuario.Activo;
+            userBD.GuardaFotoDisco = false;
             context.Usuarios.Add(userBD);
 
             await context.SaveChangesAsync();
