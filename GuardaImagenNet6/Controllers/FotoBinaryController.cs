@@ -19,7 +19,10 @@ namespace GuardaImagenNet6.Controllers
         }
         public async Task<IActionResult> Listado()
         {
-            IEnumerable<Usuario> listUserBD = await context.Usuarios.AsNoTracking().ToListAsync();
+            IEnumerable<Usuario> listUserBD = await context.Usuarios
+                .Where(u => u.GuardaFotoDisco == true)
+                .AsNoTracking()
+                .ToListAsync();
             List<UsuarioVM> listUserVM = new List<UsuarioVM>();
 
             foreach (Usuario userDB in listUserBD)
@@ -54,7 +57,7 @@ namespace GuardaImagenNet6.Controllers
 
             if (usuario == null)
                 return BadRequest("Error usuario no valido");
-            
+
             //buscar si un usuario con ese nombre ya existe.
 
             Usuario userBD = new Usuario();
@@ -77,14 +80,15 @@ namespace GuardaImagenNet6.Controllers
             userBD.UserName = usuario.NombreUsuario;
             userBD.Password = usuario.Contrasenya;
             userBD.Estatus = usuario.Activo;
+            userBD.GuardaFotoDisco = true;
             context.Usuarios.Add(userBD);
 
             await context.SaveChangesAsync();
 
-            return RedirectToAction("Listado","FotoBinary");
+            return RedirectToAction("Listado", "FotoBinary");
         }
 
-        [HttpGet,ActionName("Editar")]
+        [HttpGet, ActionName("Editar")]
         public async Task<IActionResult> Edit(int id)
         {
             if (id == 0) return BadRequest("Usuario no Proporcionado");
@@ -95,29 +99,6 @@ namespace GuardaImagenNet6.Controllers
                 return BadRequest("Usuario No Encontrado.");
 
             return View(userFound);
-
-
-            //if (usuario == null)
-            //    return BadRequest("Error usuario no valido");
-            //if (usuario.FotoByte == null || usuario.FotoByte.Length == 0)
-            //    return BadRequest("Imagen no seleccionada");
-
-            //string photoName = Path.GetFileName(usuario.FotoByte.FileName);
-            //string contentType = usuario.FotoByte.ContentType;
-
-            //using (var streamPhoto = new MemoryStream())
-            //{
-            //    usuario.FotoByte.CopyToAsync(streamPhoto);
-            //    Usuario user = new Usuario();
-            //    user.UserName = usuario.NombreUsuario;
-            //    user.Password = usuario.Contrasenya;
-            //    user.FotoBd = streamPhoto.ToArray();
-            //    user.Estatus = usuario.Activo;
-
-            //    context.Usuarios.Update(user);
-            //    context.SaveChanges();
-            //}
-
         }
 
         [HttpPost, ActionName("Editar")]

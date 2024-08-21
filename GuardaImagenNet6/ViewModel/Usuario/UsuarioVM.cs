@@ -20,6 +20,8 @@ public class UsuarioVM
     public string FotoSrc { get; set; }
     public bool Activo { get; set; }
     public DateTime FechaAlta { get; set; }
+    public bool GuardaFotoDisco {  get; set; }
+
 
 
 }
