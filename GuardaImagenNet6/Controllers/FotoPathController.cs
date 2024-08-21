@@ -24,7 +24,7 @@ namespace GuardaImagenNet6.Controllers
         public async Task<IActionResult> Listado()
         {
             IEnumerable<Usuario> listUserDB = await context.Usuarios
-                .Where(u=>u.GuardaFotoDisco==false)
+                .Where(u => u.GuardaFotoDisco == false)
                 .AsNoTracking()
                 .ToListAsync();
             List<UsuarioVM> listUserVM = new List<UsuarioVM>();
@@ -142,16 +142,26 @@ namespace GuardaImagenNet6.Controllers
 
                 if (!string.IsNullOrEmpty(userToUpdate.FotoPath))
                 {
-                    string pathFotoDelete = FotoPathDBToURL(userToUpdate.FotoPath);
-                    System.IO.File.Delete(pathFotoDelete);
+                    string pathFotoDelete = FotoPathAbsolute(userToUpdate.FotoPath);
+                    if (System.IO.File.Exists(pathFotoDelete))
+                    {
+                        System.IO.File.Delete(pathFotoDelete);
+                    }
+                    else
+                    {
+                        //archivo no existe
+                        //hacer algo con la imagen
+                    }
                 }
-                 
+
                 using (Stream stream = new FileStream(path, FileMode.Create))
                 {
                     await userVM.FotoByte.CopyToAsync(stream);
                 }
-
                 userToUpdate.FotoPath = rutaFoto;
+            }
+            else
+            {
 
             }
 
@@ -170,7 +180,6 @@ namespace GuardaImagenNet6.Controllers
             }
 
             return RedirectToAction(nameof(Listado));
-
         }
 
         [HttpGet, ActionName("details")]
@@ -185,7 +194,7 @@ namespace GuardaImagenNet6.Controllers
         }
 
 
-        [HttpGet,ActionName("Delete")]
+        [HttpGet, ActionName("Delete")]
         public async Task<IActionResult> Eliminar(int? id)
         {
             if (id == null)
@@ -199,7 +208,7 @@ namespace GuardaImagenNet6.Controllers
             return View("Delete", userVM);
         }
 
-        [HttpPost,ActionName("Delete")]
+        [HttpPost, ActionName("Delete")]
         public async Task<IActionResult> Eliminar(int id)
         {
             if (id <= 0)
@@ -264,10 +273,10 @@ namespace GuardaImagenNet6.Controllers
         private string FotoPathDBToURL(string pathFotoBD)
         {
             //Uri location = new Uri($"{Request.Scheme}://{Request.Host}/{foldername}/{filename}");//ruta uri absoluta
-
-            string path = Path.Combine("\\", pathFotoBD ?? folderName + imgDefault);
-
-            return path;
+            return Path.Combine("\\", pathFotoBD ?? folderName + imgDefault);
         }
+        private string FotoPathAbsolute(string pathFotoBD)
+        => Path.Combine(env.WebRootPath, pathFotoBD ?? folderName + imgDefault);
+
     }
 }
