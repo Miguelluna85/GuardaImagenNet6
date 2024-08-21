@@ -15,6 +15,6 @@ namespace GuardaImagenNet6.Models
         public DateTime FechaModifico { get; set; }
         public int IdUsuarioModifico { get; set; }
         public byte[] FotoBd { get; set; }
-        public string FotoName { get; set; }
+        public bool? GuardaFotoDisco { get; set; }
     }
 }
