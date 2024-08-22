@@ -1,4 +1,4 @@
-﻿@model IEnumerable<UsuarioVM>
+﻿@model IEnumerable<UsuarioEditVM>
 @{
     ViewData["Title"] = "Lista de Usuarios";
 }
@@ -23,7 +23,7 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (GuardaImagenNet6.ViewModel.Usuario.UsuarioVM user in Model)
+        @foreach (GuardaImagenNet6.ViewModel.Usuario.UsuarioEditVM user in Model)
         {
             <tr class="text-center">
                 <td>@Html.DisplayFor(item => user.ID)</td>

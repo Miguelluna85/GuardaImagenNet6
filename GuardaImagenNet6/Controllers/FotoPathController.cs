@@ -1,7 +1,6 @@
 ﻿using GuardaImagenNet6.Helpers;
 using GuardaImagenNet6.Models;
 using GuardaImagenNet6.Models.Contexto;
-using GuardaImagenNet6.Providers;
 using GuardaImagenNet6.ViewModel.Usuario;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -27,11 +26,11 @@ namespace GuardaImagenNet6.Controllers
                 .Where(u => u.GuardaFotoDisco == false)
                 .AsNoTracking()
                 .ToListAsync();
-            List<UsuarioVM> listUserVM = new List<UsuarioVM>();
+            List<UsuarioEditVM> listUserVM = new List<UsuarioEditVM>();
 
             foreach (Usuario userDB in listUserDB)
             {
-                UsuarioVM usrVM = new UsuarioVM
+                UsuarioEditVM usrVM = new UsuarioEditVM
                 {
                     ID = userDB.Id,
                     NombreUsuario = userDB.UserName,
@@ -54,7 +53,7 @@ namespace GuardaImagenNet6.Controllers
 
         [HttpPost, ActionName("Create")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Crear([Bind("NombreUsuario,Contrasenya,FotoByte,Activo")] UsuarioVM usuario)
+        public async Task<IActionResult> Crear([Bind("NombreUsuario,Contrasenya,FotoByte,Activo")] UsuarioCreateVM usuario)
         {
             if (!ModelState.IsValid)
                 return View(usuario);
@@ -116,7 +115,7 @@ namespace GuardaImagenNet6.Controllers
         }
 
         [HttpPost, ActionName("Edit")]
-        public async Task<IActionResult> Editar(int? id, [Bind("NombreUsuario, Contrasenya,FotoByte,Activo")] UsuarioVM userVM)
+        public async Task<IActionResult> Editar(int? id, [Bind("NombreUsuario, Contrasenya,FotoByte,Activo")] UsuarioEditVM userVM)
         {
             if (!ModelState.IsValid) return View(userVM);
             if (id == null && userVM == null) return NotFound();
@@ -185,7 +184,7 @@ namespace GuardaImagenNet6.Controllers
         [HttpGet, ActionName("details")]
         public async Task<ActionResult> Detalle(int id)
         {
-            var userFound = await usuarioVMSearchFirstOr(id);
+            UsuarioEditVM userFound = await usuarioVMSearchFirstOr(id);
 
             if (userFound == null)
                 return BadRequest("Usuario No Encontrado.");
@@ -200,7 +199,7 @@ namespace GuardaImagenNet6.Controllers
             if (id == null)
                 return BadRequest("Usuario no encontrado");
 
-            var userVM = await usuarioVMSearchFirstOr(int.Parse(id.ToString()));
+            UsuarioEditVM userVM = await usuarioVMSearchFirstOr(int.Parse(id.ToString()));
 
             if (userVM == null)
                 return BadRequest("Usuario no encontrado");
@@ -229,7 +228,7 @@ namespace GuardaImagenNet6.Controllers
             //_context.Entry(studentToDelete).State = EntityState.Deleted;
          
         }
-        private async Task<UsuarioVM> usuarioVMSearchFind(int id)
+        private async Task<UsuarioEditVM> usuarioVMSearchFind(int id)
         {
             if (id <= 0)
                 return null;
@@ -238,7 +237,7 @@ namespace GuardaImagenNet6.Controllers
             if (userDB == null)
                 return null;
 
-            UsuarioVM userFound = new UsuarioVM
+            UsuarioEditVM userFound = new UsuarioEditVM
             {
                 ID = userDB.Id,
                 NombreUsuario = userDB.UserName,
@@ -250,14 +249,14 @@ namespace GuardaImagenNet6.Controllers
             return userFound;
         }
 
-        private async Task<UsuarioVM> usuarioVMSearchFirstOr(int id)
+        private async Task<UsuarioEditVM> usuarioVMSearchFirstOr(int id)
         {
             if (id <= 0) return null;
 
             Usuario userDB = await context.Usuarios.AsNoTracking().FirstOrDefaultAsync(u => u.Id == id);
             if (userDB == null) return null;
 
-            UsuarioVM userFound = new UsuarioVM
+            UsuarioEditVM userFound = new UsuarioEditVM
             {
                 ID = userDB.Id,
                 NombreUsuario = userDB.UserName,

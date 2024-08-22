@@ -1,4 +1,5 @@
 using GuardaImagenNet6.Models.Contexto;
+using GuardaImagenNet6.Validators.Usuario;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,6 +9,8 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddDbContext<PruebasDBContext>(options =>
 options.UseSqlServer(builder.Configuration.GetConnectionString("ConexionDB")));
+//builder.Services.AddScoped<ExistsUserAttribute>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

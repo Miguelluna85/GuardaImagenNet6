@@ -2,14 +2,9 @@
 using GuardaImagenNet6.Models;
 using GuardaImagenNet6.Models.Contexto;
 using GuardaImagenNet6.ViewModel.Usuario;
-using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.Extensions.Hosting.Internal;
-using System;
 using System.Diagnostics;
-using System.Net.Mime;
 
 namespace GuardaImagenNet6.Controllers;
 public class HomeController : Controller
@@ -28,11 +23,11 @@ public class HomeController : Controller
     public async Task<IActionResult> Index()
     {
         IEnumerable<Usuario> listUserBD = await context.Usuarios.AsNoTracking().ToListAsync();
-        List<UsuarioVM> listUserVM = new List<UsuarioVM>();
+        List<UsuarioEditVM> listUserVM = new List<UsuarioEditVM>();
 
         foreach (Usuario userDB in listUserBD)
         {
-            UsuarioVM usrVM = new UsuarioVM
+            UsuarioEditVM usrVM = new UsuarioEditVM
             {
                 ID = userDB.Id,
                 NombreUsuario = userDB.UserName,
@@ -56,7 +51,7 @@ public class HomeController : Controller
     [HttpPost]
     [ValidateAntiForgeryToken]
     //  revisar
-    public async Task<IActionResult> Crear([Bind("NombreUsuario,Contrasenya,FotoByte,Activo")] UsuarioVM usuario)
+    public async Task<IActionResult> Crear([Bind("NombreUsuario,Contrasenya,FotoByte,Activo")] UsuarioCreateVM usuario)
     {
         if (!ModelState.IsValid)
             return View(usuario);
@@ -100,35 +95,12 @@ public class HomeController : Controller
         if (userFound == null)
             return BadRequest("Usuario No Encontrado.");
 
-        return View(userFound);
-
-
-        //if (usuario == null)
-        //    return BadRequest("Error usuario no valido");
-        //if (usuario.FotoByte == null || usuario.FotoByte.Length == 0)
-        //    return BadRequest("Imagen no seleccionada");
-
-        //string photoName = Path.GetFileName(usuario.FotoByte.FileName);
-        //string contentType = usuario.FotoByte.ContentType;
-
-        //using (var streamPhoto = new MemoryStream())
-        //{
-        //    usuario.FotoByte.CopyToAsync(streamPhoto);
-        //    Usuario user = new Usuario();
-        //    user.UserName = usuario.NombreUsuario;
-        //    user.Password = usuario.Contrasenya;
-        //    user.FotoBd = streamPhoto.ToArray();
-        //    user.Estatus = usuario.Activo;
-
-        //    context.Usuarios.Update(user);
-        //    context.SaveChanges();
-        //}
-
+        return View(userFound); 
     }
 
     [HttpPost, ActionName("Actualizar")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int? id, [Bind("NombreUsuario, Contrasenya,FotoByte,Activo")] UsuarioVM userVM)
+    public async Task<IActionResult> Edit(int? id, [Bind("NombreUsuario, Contrasenya,FotoByte,Activo")] UsuarioEditVM userVM)
     {
         if (!ModelState.IsValid) return View(userVM);
         if (id == null && userVM == null) return NotFound();
@@ -167,13 +139,13 @@ public class HomeController : Controller
     }
     public async Task<IActionResult> Detalles(int id)
     {
-        var userFound = await usuarioVMSearchFirstOr(id);
+        UsuarioEditVM userFound = await usuarioVMSearchFirstOr(id);
         if (userFound == null)
             return BadRequest("Usuario No Encontrado.");
 
         return View(userFound);
     }
-    private async Task<UsuarioVM> usuarioVMSearchFind(int id)
+    private async Task<UsuarioEditVM> usuarioVMSearchFind(int id)
     {
         if (id <= 0) 
             return null;
@@ -182,7 +154,7 @@ public class HomeController : Controller
         if (userDB == null)
             return null;
 
-        UsuarioVM userFound = new UsuarioVM
+        UsuarioEditVM userFound = new UsuarioEditVM
         {
             ID = userDB.Id,
             NombreUsuario = userDB.UserName,
@@ -193,14 +165,14 @@ public class HomeController : Controller
         };
         return userFound;
     }
-    private async Task<UsuarioVM> usuarioVMSearchFirstOr(int id)
+    private async Task<UsuarioEditVM> usuarioVMSearchFirstOr(int id)
     {
         if (id <= 0) return null;
 
         Usuario userDB = await context.Usuarios.AsNoTracking().FirstOrDefaultAsync(u => u.Id == id);
         if (userDB == null) return null;
 
-        UsuarioVM userFound = new UsuarioVM
+        UsuarioEditVM userFound = new UsuarioEditVM
         {
             ID = userDB.Id,
             NombreUsuario = userDB.UserName,
@@ -236,7 +208,7 @@ public class HomeController : Controller
         if (id == null)
             return BadRequest("Usuario no encontrado");
 
-        var userVM = await usuarioVMSearchFirstOr(int.Parse(id.ToString()));
+        UsuarioEditVM userVM = await usuarioVMSearchFirstOr(int.Parse(id.ToString()));
 
         if (userVM == null)
             return BadRequest("Usuario no encontrado");
@@ -250,7 +222,7 @@ public class HomeController : Controller
         if (id <= 0)
             return BadRequest("");
 
-        var userToDeleted = await context.Usuarios.FindAsync(id);
+        Usuario userToDeleted = await context.Usuarios.FindAsync(id);
 
         if (userToDeleted == null)
             return BadRequest("Usuario no encontrado");

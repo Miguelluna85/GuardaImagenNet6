@@ -20,14 +20,13 @@ namespace GuardaImagenNet6.Controllers
         public async Task<IActionResult> Listado()
         {
             IEnumerable<Usuario> listUserBD = await context.Usuarios
-                .Where(u => u.GuardaFotoDisco == true)
-                .AsNoTracking()
-                .ToListAsync();
-            List<UsuarioVM> listUserVM = new List<UsuarioVM>();
+                .Where(u => u.GuardaFotoDisco == true).AsNoTracking().ToListAsync();
+
+            List<UsuarioEditVM> listUserVM = new List<UsuarioEditVM>();
 
             foreach (Usuario userDB in listUserBD)
             {
-                UsuarioVM usrVM = new UsuarioVM
+                UsuarioEditVM usrVM = new UsuarioEditVM
                 {
                     ID = userDB.Id,
                     NombreUsuario = userDB.UserName,
@@ -50,16 +49,21 @@ namespace GuardaImagenNet6.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         //  revisar
-        public async Task<IActionResult> Crear([Bind("NombreUsuario,Contrasenya,FotoByte,Activo")] UsuarioVM usuario)
+        public async Task<IActionResult> Crear([Bind("NombreUsuario,Contrasenya,FotoByte,Activo")] UsuarioCreateVM usuario)
         {
-            if (!ModelState.IsValid)
-                return View(usuario);
+            if (!ModelState.IsValid) return View(usuario);
 
-            if (usuario == null)
-                return BadRequest("Error usuario no valido");
+            if (usuario == null) return BadRequest("Error usuario no valido");
 
             //buscar si un usuario con ese nombre ya existe.
+            Usuario userFound = await context.Usuarios
+                .FirstOrDefaultAsync(
+                u => u.UserName.ToLower().Equals(usuario.NombreUsuario.ToLower()));
 
+            if (userFound != null)
+            {
+                return View(usuario);
+            }
             Usuario userBD = new Usuario();
 
             if (usuario.FotoByte != null)
@@ -93,7 +97,7 @@ namespace GuardaImagenNet6.Controllers
         {
             if (id == 0) return BadRequest("Usuario no Proporcionado");
 
-            var userFound = await usuarioVMSearchFirstOr(id);
+            UsuarioEditVM userFound = await usuarioBaseVMSearchFirstOr(id);
 
             if (userFound == null)
                 return BadRequest("Usuario No Encontrado.");
@@ -103,12 +107,11 @@ namespace GuardaImagenNet6.Controllers
 
         [HttpPost, ActionName("Editar")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int? id, [Bind("NombreUsuario, Contrasenya,FotoByte,Activo")] UsuarioVM userVM)
+        public async Task<IActionResult> Edit(int? id, [Bind("NombreUsuario, Contrasenya,FotoByte,Activo")] UsuarioEditVM userVM)
         {
             if (!ModelState.IsValid) return View(userVM);
             if (id == null && userVM == null) return NotFound();
             if (id <= 0) return BadRequest("Usuario no encontrado");
-
             //var usrBD1 = await context.Usuarios.AsNoTracking().FindAsync(id);
             var userToUpdate = await context.Usuarios.FirstOrDefaultAsync(u => u.Id == id);
 
@@ -125,6 +128,7 @@ namespace GuardaImagenNet6.Controllers
             }
 
             userToUpdate.Id = int.Parse(id.ToString());
+            //password se puede quitar 
             userToUpdate.Password = string.IsNullOrEmpty(userVM.Contrasenya) ? userToUpdate.Password : userVM.Contrasenya;
             userToUpdate.Estatus = userVM.Activo;
             userToUpdate.FechaModifico = DateTime.Now;
@@ -143,7 +147,8 @@ namespace GuardaImagenNet6.Controllers
 
         public async Task<IActionResult> Detalle(int id)
         {
-            var userFound = await usuarioVMSearchFirstOr(id);
+            UsuarioEditVM userFound = await usuarioBaseVMSearchFirstOr(id);
+
             if (userFound == null)
                 return BadRequest("Usuario No Encontrado.");
 
@@ -156,12 +161,12 @@ namespace GuardaImagenNet6.Controllers
             if (id == null)
                 return BadRequest("Usuario no encontrado");
 
-            var userVM = await usuarioVMSearchFirstOr(int.Parse(id.ToString()));
+            UsuarioEditVM userBaseVM = await usuarioBaseVMSearchFirstOr(int.Parse(id.ToString()));
 
-            if (userVM == null)
+            if (userBaseVM == null)
                 return BadRequest("Usuario no encontrado");
 
-            return View("Eliminar", userVM);
+            return View("Eliminar", userBaseVM);
         }
 
         [HttpPost, ActionName("Eliminar")]
@@ -187,7 +192,7 @@ namespace GuardaImagenNet6.Controllers
         }
 
 
-        private async Task<UsuarioVM> usuarioVMSearchFind(int id)
+        private async Task<UsuarioEditVM> usuarioBaseVMSearchFind(int id)
         {
             if (id <= 0)
                 return null;
@@ -196,7 +201,7 @@ namespace GuardaImagenNet6.Controllers
             if (userDB == null)
                 return null;
 
-            UsuarioVM userFound = new UsuarioVM
+            UsuarioEditVM userFound = new UsuarioEditVM
             {
                 ID = userDB.Id,
                 NombreUsuario = userDB.UserName,
@@ -207,14 +212,14 @@ namespace GuardaImagenNet6.Controllers
             };
             return userFound;
         }
-        private async Task<UsuarioVM> usuarioVMSearchFirstOr(int id)
+        private async Task<UsuarioEditVM> usuarioBaseVMSearchFirstOr(int id)
         {
             if (id <= 0) return null;
 
             Usuario userDB = await context.Usuarios.AsNoTracking().FirstOrDefaultAsync(u => u.Id == id);
             if (userDB == null) return null;
 
-            UsuarioVM userFound = new UsuarioVM
+            UsuarioEditVM userFound = new UsuarioEditVM
             {
                 ID = userDB.Id,
                 NombreUsuario = userDB.UserName,
