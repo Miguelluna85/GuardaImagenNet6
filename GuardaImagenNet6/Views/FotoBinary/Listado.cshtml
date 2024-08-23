@@ -2,7 +2,10 @@
 @{
     ViewData["Title"] = "Lista de Usuarios";
 }
+@section css {
+    <link href="~/css/estilos.css" rel="stylesheet" asp-append-version="true" />
 
+}
 <h3 class="text-center mb-4">Listado de Usuarios (Binario)</h3>
 <p class="text-end">
     <a asp-controller="Home" asp-action="Index" class="btn btn-secondary ">Dashboard</a>
@@ -10,7 +13,7 @@
     <a asp-controller="FotoBinary" asp-action="Crear" class="btn btn-primary ">Nuevo Usuario</a>
 </p>
 <hr />
-<table class="table table-hover">
+<table class="table table-responsive table-hover ">
     <thead>
         <tr class="text-center">
             <th>@Html.DisplayName("ID")</th>
@@ -28,7 +31,9 @@
             <tr class="text-center">
                 <td>@Html.DisplayFor(item => user.ID)</td>
                 <td>@Html.DisplayFor(item => user.NombreUsuario)</td>
-                <td>@Html.DisplayFor(item => user.Contrasenya)</td>
+                <td>
+                    @Html.DisplayFor(item => user.Contrasenya)
+                </td>
                 <td><img id="imgUser_@user.ID" src=@user.FotoSrc asp-append-version="true" Width="50" alt="imagen usuario" /></td>
                 <td>@Html.DisplayFor(item => user.FechaAlta)</td>
                 <td>@Html.CheckBox("Activo_" + user.ID.ToString(), user.Activo ? user.Activo : false, new { @class = "form-check-input" })</td>

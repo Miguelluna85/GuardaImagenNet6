@@ -18,7 +18,7 @@ namespace GuardaImagenNet6.Controllers
             env = _env;
         }
         public async Task<IActionResult> Listado()
-        {
+        {             
             IEnumerable<Usuario> listUserBD = await context.Usuarios
                 .Where(u => u.GuardaFotoDisco == true).AsNoTracking().ToListAsync();
 
@@ -30,7 +30,7 @@ namespace GuardaImagenNet6.Controllers
                 {
                     ID = userDB.Id,
                     NombreUsuario = userDB.UserName,
-                    Contrasenya = userDB.Password,
+                    Contrasenya = userDB.Password.Length <= 10 ? userDB.Password + " ..." : userDB.Password.Substring(0, 10) + " ...",
                     FotoSrc = ImageBdToURL(userDB.FotoBd),
                     Activo = userDB.Estatus ?? false,
                     FechaAlta = userDB.FechaAlta
@@ -82,7 +82,7 @@ namespace GuardaImagenNet6.Controllers
             }
 
             userBD.UserName = usuario.NombreUsuario;
-            userBD.Password = usuario.Contrasenya;
+            userBD.Password = HelperCifraPassword.EncodePasswSHA256(usuario.Contrasenya);
             userBD.Estatus = usuario.Activo;
             userBD.GuardaFotoDisco = true;
             context.Usuarios.Add(userBD);
@@ -129,7 +129,7 @@ namespace GuardaImagenNet6.Controllers
 
             userToUpdate.Id = int.Parse(id.ToString());
             //password se puede quitar 
-            userToUpdate.Password = string.IsNullOrEmpty(userVM.Contrasenya) ? userToUpdate.Password : userVM.Contrasenya;
+            userToUpdate.Password = HelperCifraPassword.EncodePasswSHA256(userVM.Contrasenya);
             userToUpdate.Estatus = userVM.Activo;
             userToUpdate.FechaModifico = DateTime.Now;
 

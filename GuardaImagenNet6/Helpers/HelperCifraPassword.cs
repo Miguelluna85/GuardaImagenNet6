@@ -1,9 +1,9 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
 
-namespace GuardaImagenNet6.Services.Security;
+namespace GuardaImagenNet6.Helpers;
 
-public static class CifrarPasswordHash
+public static class HelperCifraPassword
 {
 
     public static string GenerateSalt()
@@ -42,38 +42,45 @@ public static class CifrarPasswordHash
         return iguales;
     }
 
-    public static byte[] EncriptarPassword(string password, string salt)
+    public static byte[] EncodePasswSHA256Managed(string password)
     {
+        string salt = GenerateSalt();
         string contenido = password + salt;
         SHA256Managed sha = new SHA256Managed();
+
         byte[] salida = Encoding.UTF8.GetBytes(contenido);
+
         for (int i = 1; i <= 107; i++)
-        {
             salida = sha.ComputeHash(salida);
-        }
+
+
         sha.Clear();
         return salida;
 
     }
 
-    public static string EncodePassword(string originalPassword)
+    public static string EncodePasswCryptoProvider(string Password)
     {
         SHA1 sha1 = new SHA1CryptoServiceProvider();
 
-        byte[] inputBytes = (new UnicodeEncoding()).GetBytes(originalPassword);
+        byte[] inputBytes = new UnicodeEncoding().GetBytes(Password);
         byte[] hash = sha1.ComputeHash(inputBytes);
 
         return Convert.ToBase64String(hash);
     }
 
-    public static string GetSHA256(string str)
+    public static string EncodePasswSHA256(string Password)
     {
-        SHA256 sha256 = SHA256Managed.Create();
+        SHA256 sha256 = SHA256.Create();
         ASCIIEncoding encoding = new ASCIIEncoding();
         byte[] stream = null;
         StringBuilder sb = new StringBuilder();
-        stream = sha256.ComputeHash(encoding.GetBytes(str));
-        for (int i = 0; i < stream.Length; i++) sb.AppendFormat("{0:x2}", stream[i]);
+
+        stream = sha256.ComputeHash(encoding.GetBytes(Password));
+
+        for (int i = 0; i < stream.Length; i++)
+            sb.AppendFormat("{0:x2}", stream[i]);
+
         return sb.ToString();
 
     }
