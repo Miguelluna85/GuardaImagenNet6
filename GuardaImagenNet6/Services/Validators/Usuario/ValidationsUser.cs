@@ -5,12 +5,12 @@ using GuardaImagenNet6.Models.Contexto;
 using GuardaImagenNet6.ViewModel.Usuario;
 using Microsoft.EntityFrameworkCore;
 
-namespace GuardaImagenNet6.Validators.Usuario;
+namespace GuardaImagenNet6.Services.Validators.Usuario;
 
 //No funciona
 //[AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = true)]
 public class ValidationUser : Controller
-{    
+{
     public readonly PruebasDBContext context;
     public ValidationUser(PruebasDBContext Context)
     {

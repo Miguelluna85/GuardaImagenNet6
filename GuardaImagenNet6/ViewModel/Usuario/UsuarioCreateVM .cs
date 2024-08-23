@@ -1,5 +1,5 @@
 ﻿using GuardaImagenNet6.Models.Contexto;
-using GuardaImagenNet6.Validators.Usuario;
+using GuardaImagenNet6.Services.Validators.Usuario;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System.ComponentModel.DataAnnotations;

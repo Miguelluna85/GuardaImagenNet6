@@ -1,5 +1,4 @@
 using GuardaImagenNet6.Models.Contexto;
-using GuardaImagenNet6.Validators.Usuario;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);

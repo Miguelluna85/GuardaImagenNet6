@@ -1,4 +1,4 @@
-﻿using GuardaImagenNet6.Providers;
+﻿using GuardaImagenNet6.Services.Providers;
 using System.IO;
 
 namespace GuardaImagenNet6.Helpers
