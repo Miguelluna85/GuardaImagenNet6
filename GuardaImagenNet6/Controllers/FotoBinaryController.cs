@@ -1,6 +1,7 @@
 ﻿using GuardaImagenNet6.Helpers;
 using GuardaImagenNet6.Models;
 using GuardaImagenNet6.Models.Contexto;
+using GuardaImagenNet6.Repository;
 using GuardaImagenNet6.ViewModel.Usuario;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -17,14 +18,52 @@ namespace GuardaImagenNet6.Controllers
             context = _context;
             env = _env;
         }
-        public async Task<IActionResult> Listado()
-        {             
-            IEnumerable<Usuario> listUserBD = await context.Usuarios
-                .Where(u => u.GuardaFotoDisco == true).AsNoTracking().ToListAsync();
+        public async Task<IActionResult> Listado(string buscar, string ordenActual, int? numPag, string filtroActual)
+        {
+            IQueryable<Usuario> listUserBD = from usuario in context.Usuarios select usuario;
 
-            List<UsuarioEditVM> listUserVM = new List<UsuarioEditVM>();
+            if (buscar != null)
+                numPag = 1;
+            else
+                buscar = filtroActual;
 
-            foreach (Usuario userDB in listUserBD)
+            if (!String.IsNullOrEmpty(buscar))
+            {
+                listUserBD = listUserBD.Where(s => s.UserName!.Contains(buscar));
+            }
+
+            ViewData["OrdenActual"] = ordenActual;
+            ViewData["FiltroActual"] = buscar;
+
+            ViewData["FiltroUserNombre"] = String.IsNullOrEmpty(ordenActual) ? "UserNombreDescendente" : "";
+            ViewData["FiltroFecha"] = ordenActual == "FechaAscendente" ? "FechaDescendente" : "FechaAscendente";
+
+
+            switch (ordenActual)
+            {
+                case "UserNombreDescendente":
+                    listUserBD = listUserBD.OrderByDescending(usuario => usuario.UserName);
+                    break;
+                case "FechaDescendente":
+                    listUserBD = listUserBD.OrderByDescending(usuarios => usuarios.FechaAlta);
+                    break;
+                case "FechaAscendente":
+                    listUserBD = listUserBD.OrderBy(usuarios => usuarios.FechaAlta);
+                    break;
+                default:
+                    listUserBD = listUserBD.OrderBy(usuario => usuario.UserName);
+                    break;
+            }
+
+            //IEnumerable<Usuario> listUserBD = await context.Usuarios.Where(u => u.GuardaFotoDisco == true).AsNoTracking().ToListAsync();
+
+            Paginacion<UsuarioEditVM> listUserVM = new Paginacion<UsuarioEditVM>();
+            int cantidadRegistros = 5;
+
+            Paginacion<Usuario> listPaginada = await Paginacion<Usuario>
+                .CrearPaginacion(listUserBD.AsNoTracking(), numPag ?? 1, cantidadRegistros);
+
+            foreach (Usuario userDB in listPaginada)
             {
                 UsuarioEditVM usrVM = new UsuarioEditVM
                 {

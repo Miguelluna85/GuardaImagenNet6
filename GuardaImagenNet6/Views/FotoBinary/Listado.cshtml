@@ -1,4 +1,5 @@
-﻿@model IEnumerable<UsuarioEditVM>
+﻿@using GuardaImagenNet6.Repository;
+@model Paginacion<UsuarioEditVM>
 @{
     ViewData["Title"] = "Lista de Usuarios";
 }
@@ -8,8 +9,13 @@
 }
 <h3 class="text-center mb-4">Listado de Usuarios (Binario)</h3>
 <p class="text-end">
+    <form asp-controller="FotoBinary" asp-action="Listado">
+        Buscar: <input type="text" name="buscar" value="@ViewData["FiltroActual"]"
+        class="form-text" />
+        <input type="submit" value="Buscar" class="btn btn-sm btn-dark" />
+        <a asp-action="Index" class="btn btn-outline-info">Lista completa</a>
+    </form>
     <a asp-controller="Home" asp-action="Index" class="btn btn-secondary ">Dashboard</a>
-
     <a asp-controller="FotoBinary" asp-action="Crear" class="btn btn-primary ">Nuevo Usuario</a>
 </p>
 <hr />
@@ -17,10 +23,21 @@
     <thead>
         <tr class="text-center">
             <th>@Html.DisplayName("ID")</th>
-            <th>@Html.DisplayName("Usuario")</th>
+            <th>
+                <a asp-controller="FotoBinary" asp-action="Listado" asp-route-ordenActual="@ViewData["FiltroUserNombre"]"
+                   asp-route-filtroActual="@ViewData["FiltroActual"]">
+                    @Html.DisplayName("Usuario")
+                </a>
+
+            </th>
             <th>@Html.DisplayName("Contraseña")</th>
             <th>Foto</th>
-            <th>@Html.DisplayName("Fecha Alta")</th>
+            <th>
+                <a asp-controller="FotoBinary" asp-action="Listado" asp-route-ordenActual="@ViewData["FiltroFecha"]"
+                   asp-route-filtroActual="@ViewData["FiltroFecha"]">
+                    @Html.DisplayName("Fecha Alta")
+                </a>
+            </th>
             <th>@Html.DisplayName("Estus")</th>
             <th>@Html.DisplayName("Acciones")</th>
         </tr>
@@ -46,3 +63,27 @@
     </tbody>
 
 </table>
+
+@{
+    var anteriordeshabilitado = !Model.PaginasAnteriores ? "disabled" : "";
+    var siguientedeshabilitado = !Model.PaginasPosteriores ? "disabled" : "";
+}
+
+<div>
+    <a asp-action="Index" asp-route-ordenActual="@ViewData["OrdenActual"]"
+       asp-route-numpag="@(Model.PaginaInicio - 1)" asp-route-filtroActual="@ViewData["FiltroActual"]"
+       class="btn btn-primary @anteriordeshabilitado">Anterior</a>
+
+    @for (var i = 1; i <= Model.PaginasTotales; i++)
+    {
+        var paginaActiva = (i == Model.PaginaInicio) ? "active" : "";
+        <a asp-action="Index" asp-route-ordenActual="@ViewData["OrdenActual"]" asp-route-numpag="@i" 
+            asp-route-filtroActual="@ViewData["FiltroActual"]" class="btn btn-primary @paginaActiva">
+            @i
+        </a>
+    }
+
+    <a asp-action="Index" asp-route-ordenActual="@ViewData["OrdenActual"]"
+       asp-route-numpag="@(Model.PaginaInicio + 1)" asp-route-filtroActual="@ViewData["FiltroActual"]"
+       class="btn btn-primary @siguientedeshabilitado">Siguiente</a>
+</div>
