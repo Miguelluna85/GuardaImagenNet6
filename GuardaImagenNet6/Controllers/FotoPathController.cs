@@ -4,6 +4,7 @@ using GuardaImagenNet6.Models.Contexto;
 using GuardaImagenNet6.ViewModel.Usuario;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using GuardaImagenNet6.Services.Providers;
 
 namespace GuardaImagenNet6.Controllers
 {
@@ -11,8 +12,8 @@ namespace GuardaImagenNet6.Controllers
     {
         private readonly PruebasDBContext context;
         private readonly IWebHostEnvironment env;
-        private string folderName = @"image\Usuario\";
-        private string imagenDefault = @"userDefault.png";
+        private string folderName = ResourceImagenes.folderNameImagenes;
+        private string imagenDefault = ResourceImagenes.imagenDefault;
 
         public FotoPathController(IWebHostEnvironment Env, PruebasDBContext Context)
         {
@@ -22,6 +23,7 @@ namespace GuardaImagenNet6.Controllers
 
         public async Task<IActionResult> Listado()
         {
+
             IEnumerable<Usuario> listUserDB = await context.Usuarios
                 .Where(u => u.GuardaFotoDisco == false)
                 .AsNoTracking()
@@ -47,7 +49,6 @@ namespace GuardaImagenNet6.Controllers
         [HttpGet, ActionName("Create")]
         public IActionResult Crear()
         {
-
             return View();
         }
 
@@ -86,7 +87,6 @@ namespace GuardaImagenNet6.Controllers
                 }
 
                 userBD.FotoPath = rutaFoto;
-
             }
 
             userBD.UserName = usuario.NombreUsuario;
@@ -99,7 +99,6 @@ namespace GuardaImagenNet6.Controllers
 
             return RedirectToAction("Listado", "FotoPath");
         }
-
 
         [HttpGet, ActionName("Edit")]
         public async Task<IActionResult> Editar(int id)
@@ -267,10 +266,6 @@ namespace GuardaImagenNet6.Controllers
             };
             return userFound;
         }
-
-
-        //private string FotoPathAbsolute(string pathFotoBD)
-        //=> Path.Combine(env.WebRootPath, pathFotoBD ?? folderName + imgDefault);
 
     }
 }
