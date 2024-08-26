@@ -18,31 +18,41 @@ namespace GuardaImagenNet6.Controllers
             context = _context;
             env = _env;
         }
-        public async Task<IActionResult> Listado(string buscar, string ordenActual, int? numPag, string filtroActual)
+        public async Task<IActionResult> Listado(string buscar, string ordenActual, int? numPag
+                                                                                , string filtroActual)
         {
-            IQueryable<Usuario> listUserBD = from usuario in context.Usuarios select usuario;
+
+            IQueryable<UsuarioEditVM> listUserBD = (from usuario in context.Usuarios
+                                             .Where(usuario => usuario.GuardaFotoDisco == true)
+                                                    select new UsuarioEditVM
+                                                    {
+                                                        ID = usuario.Id,
+                                                        NombreUsuario = usuario.UserName,
+                                                        Contrasenya = usuario.Password.Length <= 10 ? usuario.Password + " ..." : usuario.Password.Substring(0, 10) + " ...",
+                                                        FotoSrc = HelperImagenes.imageByteToURL(usuario.FotoBd),
+                                                        //FotoByte = usuario.FotoBd,
+                                                        Activo = usuario.Estatus ?? false,
+                                                        FechaAlta = usuario.FechaAlta
+                                                    });
+                       
+            ViewData["OrdenActual"] = ordenActual;
+            ViewData["FiltroUserNombre"] = String.IsNullOrEmpty(ordenActual) ? "UserNombreDescendente" : "";
+            ViewData["FiltroFecha"] = ordenActual == "FechaAscendente" ? "FechaDescendente" : "FechaAscendente";
 
             if (buscar != null)
                 numPag = 1;
             else
                 buscar = filtroActual;
 
-            if (!String.IsNullOrEmpty(buscar))
-            {
-                listUserBD = listUserBD.Where(s => s.UserName!.Contains(buscar));
-            }
-
-            ViewData["OrdenActual"] = ordenActual;
             ViewData["FiltroActual"] = buscar;
 
-            ViewData["FiltroUserNombre"] = String.IsNullOrEmpty(ordenActual) ? "UserNombreDescendente" : "";
-            ViewData["FiltroFecha"] = ordenActual == "FechaAscendente" ? "FechaDescendente" : "FechaAscendente";
-
+            if (!String.IsNullOrEmpty(buscar))
+                listUserBD = listUserBD.Where(s => s.NombreUsuario!.Contains(buscar));
 
             switch (ordenActual)
             {
                 case "UserNombreDescendente":
-                    listUserBD = listUserBD.OrderByDescending(usuario => usuario.UserName);
+                    listUserBD = listUserBD.OrderByDescending(usuario => usuario.NombreUsuario);
                     break;
                 case "FechaDescendente":
                     listUserBD = listUserBD.OrderByDescending(usuarios => usuarios.FechaAlta);
@@ -51,33 +61,14 @@ namespace GuardaImagenNet6.Controllers
                     listUserBD = listUserBD.OrderBy(usuarios => usuarios.FechaAlta);
                     break;
                 default:
-                    listUserBD = listUserBD.OrderBy(usuario => usuario.UserName);
+                    listUserBD = listUserBD.OrderBy(usuario => usuario.NombreUsuario);
                     break;
             }
-
-            //IEnumerable<Usuario> listUserBD = await context.Usuarios.Where(u => u.GuardaFotoDisco == true).AsNoTracking().ToListAsync();
-
-            Paginacion<UsuarioEditVM> listUserVM = new Paginacion<UsuarioEditVM>();
-            int cantidadRegistros = 5;
-
-            Paginacion<Usuario> listPaginada = await Paginacion<Usuario>
-                .CrearPaginacion(listUserBD.AsNoTracking(), numPag ?? 1, cantidadRegistros);
-
-            foreach (Usuario userDB in listPaginada)
-            {
-                UsuarioEditVM usrVM = new UsuarioEditVM
-                {
-                    ID = userDB.Id,
-                    NombreUsuario = userDB.UserName,
-                    Contrasenya = userDB.Password.Length <= 10 ? userDB.Password + " ..." : userDB.Password.Substring(0, 10) + " ...",
-                    FotoSrc = ImageBdToURL(userDB.FotoBd),
-                    Activo = userDB.Estatus ?? false,
-                    FechaAlta = userDB.FechaAlta
-                };
-                listUserVM.Add(usrVM);
-            }
-
-            return View(listUserVM);
+            int cantidadRegistros = 10;
+            PaginacionList<UsuarioEditVM> listPaginada = await PaginacionList<UsuarioEditVM>
+                            .CrearPaginacion(listUserBD.AsNoTracking(), numPag ?? 1, cantidadRegistros);
+            
+            return View(listPaginada);
         }
 
         [HttpGet]
@@ -158,7 +149,7 @@ namespace GuardaImagenNet6.Controllers
             {
                 using (var streamPhoto = new MemoryStream())
                 {
-                    await userVM.FotoByte.CopyToAsync(streamPhoto);
+                    await userVM.FotoFile.CopyToAsync(streamPhoto);
                     userToUpdate.FotoBd = streamPhoto.ToArray();
                 }
             }
@@ -246,7 +237,7 @@ namespace GuardaImagenNet6.Controllers
                 NombreUsuario = userDB.UserName,
                 Contrasenya = userDB.Password,
                 FechaAlta = userDB.FechaAlta,
-                FotoSrc = ImageBdToURL(userDB.FotoBd),
+                FotoSrc = HelperImagenes.imageByteToURL(userDB.FotoBd),
                 Activo = userDB.Estatus ?? false
             };
             return userFound;
@@ -264,28 +255,28 @@ namespace GuardaImagenNet6.Controllers
                 NombreUsuario = userDB.UserName,
                 Contrasenya = userDB.Password,
                 FechaAlta = userDB.FechaAlta,
-                FotoSrc = ImageBdToURL(userDB.FotoBd),
+                FotoSrc = HelperImagenes.imageByteToURL(userDB.FotoBd),
                 Activo = userDB.Estatus ?? false
             };
             return userFound;
         }
-        private string ImageBdToURL(byte[] FotoDB)
-        {
-            if (FotoDB == null || FotoDB.Length == 0)
-            {
-                var foldername = @"image\Usuario";
-                var filename = "userDefault.png";
-                var path1 = Path.Combine(env.WebRootPath, foldername, filename);
-                var path2 = Path.Combine("\\", foldername, filename);//ruta relativa img
-                Uri location = new Uri($"{Request.Scheme}://{Request.Host}/{foldername}/{filename}");//ruta absoluta
-                return location.AbsoluteUri;
-            }
-            else
-            {
-                string imgBase64 = Convert.ToBase64String(FotoDB);
-                return string.Format("data:imagen/*;base64,{0}", imgBase64);
-            }
-        }
+        //private string ImageBdToURL(byte[] FotoDB)
+        //{
+        //    if (FotoDB == null || FotoDB.Length == 0)
+        //    {
+        //        var foldername = @"image\Usuario";
+        //        var filename = "userDefault.png";
+        //        var path1 = Path.Combine(env.WebRootPath, foldername, filename);
+        //        var path2 = Path.Combine("\\", foldername, filename);//ruta relativa img
+        //        Uri location = new Uri($"{Request.Scheme}://{Request.Host}/{foldername}/{filename}");//ruta absoluta
+        //        return location.AbsoluteUri;
+        //    }
+        //    else
+        //    {
+        //        string imgBase64 = Convert.ToBase64String(FotoDB);
+        //        return string.Format("data:imagen/*;base64,{0}", imgBase64);
+        //    }
+        //}
 
     }
 }

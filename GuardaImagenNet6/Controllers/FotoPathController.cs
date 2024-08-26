@@ -128,7 +128,7 @@ namespace GuardaImagenNet6.Controllers
             {
                 Guid idGuid = Guid.NewGuid();
                 // string photoName = Path.GetFileName(usuario.FotoByte.FileName);
-                string extPhoto = Path.GetExtension(userVM.FotoByte.FileName);
+                string extPhoto = Path.GetExtension(userVM.FotoFile.FileName);
 
                 if (!HelperImagenes.ExtensionsFotosValid(extPhoto))
                     return BadRequest("El archivo no es una imagen valida");
@@ -155,7 +155,7 @@ namespace GuardaImagenNet6.Controllers
 
                 using (Stream stream = new FileStream(path, FileMode.Create))
                 {
-                    await userVM.FotoByte.CopyToAsync(stream);
+                    await userVM.FotoFile.CopyToAsync(stream);
                 }
                 userToUpdate.FotoPath = rutaFoto;
             }
