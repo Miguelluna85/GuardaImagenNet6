@@ -15,7 +15,7 @@ public static class HelperImagenes
     }
 
     public static string imageByteToURL(byte[] fotoFile)
-    {        
+    {
         if (fotoFile == null || fotoFile.Length == 0)
         {
             string foldername = @"image\Usuario\";
@@ -29,6 +29,14 @@ public static class HelperImagenes
             return string.Format("data:imagen/*;base64,{0}", imgBase64);
         }
     }
+
+    public static string imagenPathDBToURL(string imagenNamePath)
+    {
+        return Path.Combine("\\", imagenNamePath);
+    }
+    public static string imagenPathAbsolute(IWebHostEnvironment env, string pathFoto)
+       => Path.Combine(env.WebRootPath, pathFoto);
+
     //private static string ImageBdToUri(byte[] FotoDB)
     //{
     //    if (FotoDB == null || FotoDB.Length == 0)

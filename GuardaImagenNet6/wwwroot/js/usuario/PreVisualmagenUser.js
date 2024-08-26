@@ -1,4 +1,4 @@
-﻿const imgFile = document.getElementById('FotoByte');
+﻿const imgFile = document.getElementById('FotoFile');
 const imgUser = document.getElementById('imgUser');
 
 

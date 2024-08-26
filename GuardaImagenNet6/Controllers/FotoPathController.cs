@@ -12,7 +12,7 @@ namespace GuardaImagenNet6.Controllers
         private readonly PruebasDBContext context;
         private readonly IWebHostEnvironment env;
         private string folderName = @"image\Usuario\";
-        private string imgDefault = "userDefault.png";
+        private string imagenDefault = @"userDefault.png";
 
         public FotoPathController(IWebHostEnvironment Env, PruebasDBContext Context)
         {
@@ -35,7 +35,7 @@ namespace GuardaImagenNet6.Controllers
                     ID = userDB.Id,
                     NombreUsuario = userDB.UserName,
                     Contrasenya = userDB.Password.Length <= 10 ? userDB.Password + " ..." : userDB.Password.Substring(0, 10) + " ...",
-                    FotoPath = FotoPathDBToURL(userDB.FotoPath),
+                    FotoPath = HelperImagenes.imagenPathDBToURL(userDB.FotoPath ?? folderName + imagenDefault),
                     Activo = userDB.Estatus ?? false,
                     FechaAlta = userDB.FechaAlta
                 };
@@ -53,7 +53,7 @@ namespace GuardaImagenNet6.Controllers
 
         [HttpPost, ActionName("Create")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Crear([Bind("NombreUsuario,Contrasenya,FotoByte,Activo")] UsuarioCreateVM usuario)
+        public async Task<IActionResult> Crear([Bind("NombreUsuario,Contrasenya,FotoFile,Activo")] UsuarioCreateVM usuario)
         {
             if (!ModelState.IsValid)
                 return View(usuario);
@@ -65,11 +65,11 @@ namespace GuardaImagenNet6.Controllers
 
             Usuario userBD = new Usuario();
 
-            if (usuario.FotoByte != null)
+            if (usuario.FotoFile != null)
             {
                 Guid idGuid = Guid.NewGuid();
                 // string photoName = Path.GetFileName(usuario.FotoByte.FileName);
-                string extPhoto = Path.GetExtension(usuario.FotoByte.FileName);
+                string extPhoto = Path.GetExtension(usuario.FotoFile.FileName);
 
                 if (!HelperImagenes.ExtensionsFotosValid(extPhoto))
                     return BadRequest("El archivo no es una imagen valida");
@@ -82,7 +82,7 @@ namespace GuardaImagenNet6.Controllers
 
                 using (Stream stream = new FileStream(path, FileMode.Create))
                 {
-                    await usuario.FotoByte.CopyToAsync(stream);
+                    await usuario.FotoFile.CopyToAsync(stream);
                 }
 
                 userBD.FotoPath = rutaFoto;
@@ -115,7 +115,7 @@ namespace GuardaImagenNet6.Controllers
         }
 
         [HttpPost, ActionName("Edit")]
-        public async Task<IActionResult> Editar(int? id, [Bind("NombreUsuario, Contrasenya,FotoByte,Activo")] UsuarioEditVM userVM)
+        public async Task<IActionResult> Editar(int? id, [Bind("NombreUsuario, Contrasenya,FotoFile,Activo")] UsuarioEditVM userVM)
         {
             if (!ModelState.IsValid) return View(userVM);
             if (id == null && userVM == null) return NotFound();
@@ -124,7 +124,7 @@ namespace GuardaImagenNet6.Controllers
             //var usrBD1 = await context.Usuarios.AsNoTracking().FindAsync(id);
             var userToUpdate = await context.Usuarios.FirstOrDefaultAsync(u => u.Id == id);
 
-            if (userVM.FotoByte != null)
+            if (userVM.FotoFile != null)
             {
                 Guid idGuid = Guid.NewGuid();
                 // string photoName = Path.GetFileName(usuario.FotoByte.FileName);
@@ -141,7 +141,7 @@ namespace GuardaImagenNet6.Controllers
 
                 if (!string.IsNullOrEmpty(userToUpdate.FotoPath))
                 {
-                    string pathFotoDelete = FotoPathAbsolute(userToUpdate.FotoPath);
+                    string pathFotoDelete = HelperImagenes.imagenPathAbsolute(env, userToUpdate.FotoPath);
                     if (System.IO.File.Exists(pathFotoDelete))
                     {
                         System.IO.File.Delete(pathFotoDelete);
@@ -226,7 +226,7 @@ namespace GuardaImagenNet6.Controllers
             //para mejorar el rendimiento, solo que no elimina encascada
             //Student studentToDelete = new Student() { ID = id };
             //_context.Entry(studentToDelete).State = EntityState.Deleted;
-         
+
         }
         private async Task<UsuarioEditVM> usuarioVMSearchFind(int id)
         {
@@ -243,7 +243,7 @@ namespace GuardaImagenNet6.Controllers
                 NombreUsuario = userDB.UserName,
                 Contrasenya = userDB.Password,
                 FechaAlta = userDB.FechaAlta,
-                FotoPath = FotoPathDBToURL(userDB.FotoPath),
+                FotoPath = HelperImagenes.imagenPathAbsolute(env, userDB.FotoPath ?? folderName + imagenDefault),
                 Activo = userDB.Estatus ?? false
             };
             return userFound;
@@ -260,21 +260,17 @@ namespace GuardaImagenNet6.Controllers
             {
                 ID = userDB.Id,
                 NombreUsuario = userDB.UserName,
-                Contrasenya = userDB.Password,
+                Contrasenya = userDB.Password.Length <= 10 ? userDB.Password + " ..." : userDB.Password.Substring(0, 10) + " ...",
                 FechaAlta = userDB.FechaAlta,
-                FotoPath = FotoPathDBToURL(userDB.FotoPath),
+                FotoPath = HelperImagenes.imagenPathDBToURL(userDB.FotoPath ?? string.Concat(folderName + imagenDefault)),
                 Activo = userDB.Estatus ?? false
             };
             return userFound;
         }
 
-        private string FotoPathDBToURL(string pathFotoBD)
-        {
-            //Uri location = new Uri($"{Request.Scheme}://{Request.Host}/{foldername}/{filename}");//ruta uri absoluta
-            return Path.Combine("\\", pathFotoBD ?? folderName + imgDefault);
-        }
-        private string FotoPathAbsolute(string pathFotoBD)
-        => Path.Combine(env.WebRootPath, pathFotoBD ?? folderName + imgDefault);
+
+        //private string FotoPathAbsolute(string pathFotoBD)
+        //=> Path.Combine(env.WebRootPath, pathFotoBD ?? folderName + imgDefault);
 
     }
 }

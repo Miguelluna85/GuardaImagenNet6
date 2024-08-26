@@ -79,7 +79,7 @@ namespace GuardaImagenNet6.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         //  revisar
-        public async Task<IActionResult> Crear([Bind("NombreUsuario,Contrasenya,FotoByte,Activo")] UsuarioCreateVM usuario)
+        public async Task<IActionResult> Crear([Bind("NombreUsuario,Contrasenya,FotoFile,Activo")] UsuarioCreateVM usuario)
         {
             if (!ModelState.IsValid) return View(usuario);
 
@@ -96,17 +96,17 @@ namespace GuardaImagenNet6.Controllers
             }
             Usuario userBD = new Usuario();
 
-            if (usuario.FotoByte != null)
+            if (usuario.FotoFile != null)
             {
-                string photoName = Path.GetFileName(usuario.FotoByte.FileName);
-                string extPhoto = Path.GetExtension(usuario.FotoByte.FileName);
+                //string photoName = Path.GetFileName(usuario.FotoFile.FileName);
+                string extPhoto = Path.GetExtension(usuario.FotoFile.FileName);
 
                 if (!HelperImagenes.ExtensionsFotosValid(extPhoto))
                     return BadRequest("El archivo no es una imagen valida");
 
                 using (var streamPhoto = new MemoryStream())
                 {
-                    await usuario.FotoByte.CopyToAsync(streamPhoto);
+                    await usuario.FotoFile.CopyToAsync(streamPhoto);
                     userBD.FotoBd = streamPhoto.ToArray();
                 }
             }
@@ -137,7 +137,7 @@ namespace GuardaImagenNet6.Controllers
 
         [HttpPost, ActionName("Editar")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int? id, [Bind("NombreUsuario, Contrasenya,FotoByte,Activo")] UsuarioEditVM userVM)
+        public async Task<IActionResult> Edit(int? id, [Bind("NombreUsuario, Contrasenya,FotoFile,Activo")] UsuarioEditVM userVM)
         {
             if (!ModelState.IsValid) return View(userVM);
             if (id == null && userVM == null) return NotFound();
@@ -145,7 +145,7 @@ namespace GuardaImagenNet6.Controllers
             //var usrBD1 = await context.Usuarios.AsNoTracking().FindAsync(id);
             var userToUpdate = await context.Usuarios.FirstOrDefaultAsync(u => u.Id == id);
 
-            if (userVM.FotoByte != null)
+            if (userVM.FotoFile != null)
             {
                 using (var streamPhoto = new MemoryStream())
                 {
@@ -260,23 +260,6 @@ namespace GuardaImagenNet6.Controllers
             };
             return userFound;
         }
-        //private string ImageBdToURL(byte[] FotoDB)
-        //{
-        //    if (FotoDB == null || FotoDB.Length == 0)
-        //    {
-        //        var foldername = @"image\Usuario";
-        //        var filename = "userDefault.png";
-        //        var path1 = Path.Combine(env.WebRootPath, foldername, filename);
-        //        var path2 = Path.Combine("\\", foldername, filename);//ruta relativa img
-        //        Uri location = new Uri($"{Request.Scheme}://{Request.Host}/{foldername}/{filename}");//ruta absoluta
-        //        return location.AbsoluteUri;
-        //    }
-        //    else
-        //    {
-        //        string imgBase64 = Convert.ToBase64String(FotoDB);
-        //        return string.Format("data:imagen/*;base64,{0}", imgBase64);
-        //    }
-        //}
-
+        
     }
 }

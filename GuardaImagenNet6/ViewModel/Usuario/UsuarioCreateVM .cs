@@ -19,7 +19,7 @@ public class UsuarioCreateVM
     public string Contrasenya { get; set; }
 
     public string FotoPath { get; set; }
-    public IFormFile FotoByte { get; set; }
+    public IFormFile FotoFile { get; set; }
     public string FotoSrc { get; set; }
     public bool Activo { get; set; }
     public DateTime FechaAlta { get; set; }
