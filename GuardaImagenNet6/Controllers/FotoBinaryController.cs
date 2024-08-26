@@ -18,8 +18,7 @@ namespace GuardaImagenNet6.Controllers
             context = _context;
             env = _env;
         }
-        public async Task<IActionResult> Listado(string buscar, string ordenActual, int? numPag
-                                                                                , string filtroActual)
+        public async Task<IActionResult> Listado(string buscar, string ordenActual, int? numPag, string filtroActual)
         {
 
             IQueryable<UsuarioEditVM> listUserBD = (from usuario in context.Usuarios
@@ -34,7 +33,7 @@ namespace GuardaImagenNet6.Controllers
                                                         Activo = usuario.Estatus ?? false,
                                                         FechaAlta = usuario.FechaAlta
                                                     });
-                       
+
             ViewData["OrdenActual"] = ordenActual;
             ViewData["FiltroUserNombre"] = String.IsNullOrEmpty(ordenActual) ? "UserNombreDescendente" : "";
             ViewData["FiltroFecha"] = ordenActual == "FechaAscendente" ? "FechaDescendente" : "FechaAscendente";
@@ -67,7 +66,7 @@ namespace GuardaImagenNet6.Controllers
             int cantidadRegistros = 10;
             PaginacionList<UsuarioEditVM> listPaginada = await PaginacionList<UsuarioEditVM>
                             .CrearPaginacion(listUserBD.AsNoTracking(), numPag ?? 1, cantidadRegistros);
-            
+
             return View(listPaginada);
         }
 
@@ -260,6 +259,6 @@ namespace GuardaImagenNet6.Controllers
             };
             return userFound;
         }
-        
+
     }
 }

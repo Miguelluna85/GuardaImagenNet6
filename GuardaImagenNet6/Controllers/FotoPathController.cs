@@ -5,6 +5,7 @@ using GuardaImagenNet6.ViewModel.Usuario;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using GuardaImagenNet6.Services.Providers;
+using GuardaImagenNet6.Repository;
 
 namespace GuardaImagenNet6.Controllers
 {
@@ -21,29 +22,54 @@ namespace GuardaImagenNet6.Controllers
             this.env = Env;
         }
 
-        public async Task<IActionResult> Listado()
+        public async Task<IActionResult> Listado(string buscar, string ordenActual, int? numPag, string filtroActual)
         {
 
-            IEnumerable<Usuario> listUserDB = await context.Usuarios
-                .Where(u => u.GuardaFotoDisco == false)
-                .AsNoTracking()
-                .ToListAsync();
-            List<UsuarioEditVM> listUserVM = new List<UsuarioEditVM>();
+            IQueryable<UsuarioEditVM> listUsersBD = from userDB in context.Usuarios
+                                           .Where(u => u.GuardaFotoDisco == false)
+                                                    select new UsuarioEditVM
+                                                    {
+                                                        ID = userDB.Id,
+                                                        NombreUsuario = userDB.UserName,
+                                                        Contrasenya = userDB.Password.Length <= 10 ? userDB.Password + " ..." : userDB.Password.Substring(0, 10) + " ...",
+                                                        FotoPath = HelperImagenes.imagenPathDBToURL(userDB.FotoPath ?? folderName + imagenDefault),
+                                                        Activo = userDB.Estatus ?? false,
+                                                        FechaAlta = userDB.FechaAlta
+                                                    };
 
-            foreach (Usuario userDB in listUserDB)
-            {
-                UsuarioEditVM usrVM = new UsuarioEditVM
-                {
-                    ID = userDB.Id,
-                    NombreUsuario = userDB.UserName,
-                    Contrasenya = userDB.Password.Length <= 10 ? userDB.Password + " ..." : userDB.Password.Substring(0, 10) + " ...",
-                    FotoPath = HelperImagenes.imagenPathDBToURL(userDB.FotoPath ?? folderName + imagenDefault),
-                    Activo = userDB.Estatus ?? false,
-                    FechaAlta = userDB.FechaAlta
-                };
-                listUserVM.Add(usrVM);
-            }
-            return View(listUserVM);
+            ViewData["OrdenActual"] = ordenActual;
+            ViewData["FiltroUserNombre"] = String.IsNullOrEmpty(ordenActual) ? "UserNombreDescendente" : "";
+            ViewData["FiltroFecha"] = ordenActual == "FechaAscendente" ? "FechaDescendente" : "FechaAscendente";
+
+            if (buscar != null)
+                numPag = 1;
+            else
+                buscar = filtroActual;
+
+            ViewData["FiltroActual"] = buscar;
+
+            //if (!String.IsNullOrEmpty(buscar))
+            //    listUsersBD = listUsersBD.Where(s => s.NombreUsuario!.Contains(buscar));
+            //switch (ordenActual)
+            //{
+            //    case "UserNombreDescendente":
+            //        listUsersBD = listUsersBD.OrderByDescending(usuario => usuario.NombreUsuario);
+            //        break;
+            //    case "FechaDescendente":
+            //        listUsersBD = listUsersBD.OrderByDescending(usuarios => usuarios.FechaAlta);
+            //        break;
+            //    case "FechaAscendente":
+            //        listUsersBD = listUsersBD.OrderBy(usuarios => usuarios.FechaAlta);
+            //        break;
+            //    default:
+            //        listUsersBD = listUsersBD.OrderBy(usuario => usuario.NombreUsuario);
+            //        break;
+            //}
+            int cantidadRegistros = 10;
+            PaginacionList<UsuarioEditVM> listPaginada = await PaginacionList<UsuarioEditVM>
+                            .CrearPaginacion(listUsersBD.AsNoTracking(), numPag ?? 1, cantidadRegistros);
+
+            return View(listPaginada);
         }
 
         [HttpGet, ActionName("Create")]
