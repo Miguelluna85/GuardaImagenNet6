@@ -12,7 +12,7 @@ namespace GuardaImagenNet6.Controllers
     public class FotoBinaryController : Controller
     {
         private readonly PruebasDBContext context;
-        private readonly IWebHostEnvironment env;
+        private readonly IWebHostEnvironment env;        
 
         public FotoBinaryController(IWebHostEnvironment _env, PruebasDBContext _context)
         {
@@ -74,11 +74,7 @@ namespace GuardaImagenNet6.Controllers
         [HttpGet]
         public IActionResult Crear()
         {
-            ViewBag.ModalVisible = 0;
-            ViewBag.Mensaje = "";
-            ViewBag.TituloMensaje = "";
-            ViewBag.ImagenPop = "";
-
+            createViewBags();
             return View();
         }
         [HttpPost]
@@ -121,22 +117,7 @@ namespace GuardaImagenNet6.Controllers
             context.Usuarios.Add(userBD);
 
             int success = await context.SaveChangesAsync();
-            if (success > 0)
-            {
-                ViewBag.ModalVisible = 1;
-                ViewBag.TituloMensaje = "Aviso";
-                ViewBag.Mensaje = "Usuario guardado correctamente!!!";
-                ViewBag.ImagenPop = HelperImagenes.imagenPathDBToURL(
-                    ResourceImagenes.folderImagenPop + ResourceImagenes.imagenSuccessPop);
-            }
-            else
-            {
-                ViewBag.ModalVisible = 0;
-                ViewBag.TituloMensaje = "Error";
-                ViewBag.Mensaje = "Error al guardar, consulte con el administrador.";
-                ViewBag.ImagenPop = HelperImagenes.imagenPathDBToURL(
-                    ResourceImagenes.folderImagenPop + ResourceImagenes.imagenErrorPop);
-            }
+            PopUpMostrar(success, "guardado");
 
             return View(null);
             //return RedirectToAction("Listado", "FotoBinary");
@@ -145,6 +126,8 @@ namespace GuardaImagenNet6.Controllers
         [HttpGet, ActionName("Editar")]
         public async Task<IActionResult> Edit(int id)
         {
+            createViewBags();
+
             if (id == 0) return BadRequest("Usuario no Proporcionado");
 
             UsuarioEditVM userFound = await usuarioBaseVMSearchFirstOr(id);
@@ -189,10 +172,11 @@ namespace GuardaImagenNet6.Controllers
                 u => u.Password, u => u.Estatus, u => u.FechaModifico, u => u.FotoBd
                 ))
             {
-                await context.SaveChangesAsync();
-            }
+                int success = await context.SaveChangesAsync();
+                PopUpMostrar(success, "actualizado");
 
-            return RedirectToAction(nameof(Listado));
+            }
+            return View(new UsuarioEditVM());
         }
 
         public async Task<IActionResult> Detalle(int id)
@@ -241,7 +225,6 @@ namespace GuardaImagenNet6.Controllers
             //return RedirectToAction(nameof(Index));
         }
 
-
         private async Task<UsuarioEditVM> usuarioBaseVMSearchFind(int id)
         {
             if (id <= 0)
@@ -281,5 +264,32 @@ namespace GuardaImagenNet6.Controllers
             return userFound;
         }
 
+        private void createViewBags()
+        {
+            ViewBag.ModalVisible = 0;
+            ViewBag.Mensaje = "";
+            ViewBag.TituloMensaje = "";
+            ViewBag.ImagenPop = "";
+        }
+        private void PopUpMostrar(int success, string operacion)
+        {
+            if (success > 0)
+            {
+                ViewBag.ModalVisible = 1;
+                ViewBag.TituloMensaje = "Aviso";
+                ViewBag.Mensaje = $"Usuario {operacion} correctamente!!!";
+                ViewBag.ImagenPop = HelperImagenes.imagenPathDBToURL(
+                ResourceImagenes.folderImagenPop + ResourceImagenes.imagenSuccessPop);
+            }
+            else
+            {
+                ViewBag.ModalVisible = 0;
+                ViewBag.TituloMensaje = "Error";
+                ViewBag.Mensaje = $"Usuario {operacion} correctamente!!!";
+                ViewBag.ImagenPop = HelperImagenes.imagenPathDBToURL(
+                ResourceImagenes.folderImagenPop + ResourceImagenes.imagenErrorPop);
+            }
+        }
+   
     }
 }

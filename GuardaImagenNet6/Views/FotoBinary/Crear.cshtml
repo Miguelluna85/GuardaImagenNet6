@@ -59,14 +59,11 @@
 </div>
 
 
-
 @section Scripts {
     <partial name="_ValidationScriptsPartial.cshtml" />
     <script src="~/js/usuario/PreVisualmagenUser.js" asp-append-verion="true"></script>
     @if (@ViewData["ModalVisible"] != null)
     {
-
-
         @if (@ViewBag.ModalVisible > 0)
         {
             <script type="text/javascript">

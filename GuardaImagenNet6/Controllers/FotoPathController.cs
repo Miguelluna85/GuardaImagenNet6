@@ -75,6 +75,7 @@ namespace GuardaImagenNet6.Controllers
         [HttpGet, ActionName("Create")]
         public IActionResult Crear()
         {
+            createViewBags();
             return View();
         }
 
@@ -121,14 +122,17 @@ namespace GuardaImagenNet6.Controllers
             userBD.GuardaFotoDisco = false;
             context.Usuarios.Add(userBD);
 
-            await context.SaveChangesAsync();
+            int success = await context.SaveChangesAsync();
+            PopUpMostrar(success, "guardado");
 
-            return RedirectToAction("Listado", "FotoPath");
+            return View(new UsuarioCreateVM());
         }
 
         [HttpGet, ActionName("Edit")]
         public async Task<IActionResult> Editar(int id)
         {
+            createViewBags();
+
             if (id == 0) return BadRequest("Usuario no Proporcionado");
 
             var userFound = await usuarioVMSearchFirstOr(id);
@@ -200,10 +204,11 @@ namespace GuardaImagenNet6.Controllers
                 u => u.Password, u => u.Estatus, u => u.FechaModifico, u => u.FotoPath
                 ))
             {
-                await context.SaveChangesAsync();
+                int success = await context.SaveChangesAsync();
+                PopUpMostrar(success, "actualizado");
             }
 
-            return RedirectToAction(nameof(Listado));
+            return View(new UsuarioEditVM());
         }
 
         [HttpGet, ActionName("details")]
@@ -291,6 +296,33 @@ namespace GuardaImagenNet6.Controllers
                 Activo = userDB.Estatus ?? false
             };
             return userFound;
+        }
+
+        private void createViewBags()
+        {
+            ViewBag.ModalVisible = 0;
+            ViewBag.Mensaje = "";
+            ViewBag.TituloMensaje = "";
+            ViewBag.ImagenPop = "";
+        }
+        private void PopUpMostrar(int success, string operacion)
+        {
+            if (success > 0)
+            {
+                ViewBag.ModalVisible = 1;
+                ViewBag.TituloMensaje = "Aviso";
+                ViewBag.Mensaje = $"Usuario {operacion} correctamente!!!";
+                ViewBag.ImagenPop = HelperImagenes.imagenPathDBToURL(
+                ResourceImagenes.folderImagenPop + ResourceImagenes.imagenSuccessPop);
+            }
+            else
+            {
+                ViewBag.ModalVisible = 0;
+                ViewBag.TituloMensaje = "Error";
+                ViewBag.Mensaje = $"Usuario {operacion} correctamente!!!";
+                ViewBag.ImagenPop = HelperImagenes.imagenPathDBToURL(
+                ResourceImagenes.folderImagenPop + ResourceImagenes.imagenErrorPop);
+            }
         }
 
     }
