@@ -2,6 +2,7 @@
 using GuardaImagenNet6.Models;
 using GuardaImagenNet6.Models.Contexto;
 using GuardaImagenNet6.Repository;
+using GuardaImagenNet6.Services.Providers;
 using GuardaImagenNet6.ViewModel.Usuario;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -73,6 +74,11 @@ namespace GuardaImagenNet6.Controllers
         [HttpGet]
         public IActionResult Crear()
         {
+            ViewBag.ModalVisible = 0;
+            ViewBag.Mensaje = "";
+            ViewBag.TituloMensaje = "";
+            ViewBag.ImagenPop = "";
+
             return View();
         }
         [HttpPost]
@@ -81,13 +87,11 @@ namespace GuardaImagenNet6.Controllers
         public async Task<IActionResult> Crear([Bind("NombreUsuario,Contrasenya,FotoFile,Activo")] UsuarioCreateVM usuario)
         {
             if (!ModelState.IsValid) return View(usuario);
-
             if (usuario == null) return BadRequest("Error usuario no valido");
 
             //buscar si un usuario con ese nombre ya existe.
             Usuario userFound = await context.Usuarios
-                .FirstOrDefaultAsync(
-                u => u.UserName.ToLower().Equals(usuario.NombreUsuario.ToLower()));
+                .FirstOrDefaultAsync(u => u.UserName.ToLower().Equals(usuario.NombreUsuario.ToLower()));
 
             if (userFound != null)
             {
@@ -116,9 +120,26 @@ namespace GuardaImagenNet6.Controllers
             userBD.GuardaFotoDisco = true;
             context.Usuarios.Add(userBD);
 
-            await context.SaveChangesAsync();
+            int success = await context.SaveChangesAsync();
+            if (success > 0)
+            {
+                ViewBag.ModalVisible = 1;
+                ViewBag.TituloMensaje = "Aviso";
+                ViewBag.Mensaje = "Usuario guardado correctamente!!!";
+                ViewBag.ImagenPop = HelperImagenes.imagenPathDBToURL(
+                    ResourceImagenes.folderImagenPop + ResourceImagenes.imagenSuccessPop);
+            }
+            else
+            {
+                ViewBag.ModalVisible = 0;
+                ViewBag.TituloMensaje = "Error";
+                ViewBag.Mensaje = "Error al guardar, consulte con el administrador.";
+                ViewBag.ImagenPop = HelperImagenes.imagenPathDBToURL(
+                    ResourceImagenes.folderImagenPop + ResourceImagenes.imagenErrorPop);
+            }
 
-            return RedirectToAction("Listado", "FotoBinary");
+            return View(null);
+            //return RedirectToAction("Listado", "FotoBinary");
         }
 
         [HttpGet, ActionName("Editar")]

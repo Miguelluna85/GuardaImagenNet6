@@ -61,6 +61,15 @@ namespace GuardaImagenNet6.Services.Providers {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to image\iconos\.
+        /// </summary>
+        public static string folderImagenPop {
+            get {
+                return ResourceManager.GetString("folderImagenPop", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to image\Usuario\.
         /// </summary>
         public static string folderNameImagenes {
@@ -75,6 +84,24 @@ namespace GuardaImagenNet6.Services.Providers {
         public static string imagenDefault {
             get {
                 return ResourceManager.GetString("imagenDefault", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to error_Red.png.
+        /// </summary>
+        public static string imagenErrorPop {
+            get {
+                return ResourceManager.GetString("imagenErrorPop", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to success_Green.png.
+        /// </summary>
+        public static string imagenSuccessPop {
+            get {
+                return ResourceManager.GetString("imagenSuccessPop", resourceCulture);
             }
         }
     }

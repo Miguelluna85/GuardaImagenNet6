@@ -12,3 +12,5 @@ imgFile.addEventListener("change",() =>{
         imgUser.src = URL.createObjectURL(imagen);
     }
 });
+
+

@@ -117,6 +117,10 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="folderImagenPop" xml:space="preserve">
+    <value>image\iconos\</value>
+    <comment>ruta de los iconos</comment>
+  </data>
   <data name="folderNameImagenes" xml:space="preserve">
     <value>image\Usuario\</value>
     <comment>ruta defaulta para guardar imagenes</comment>
@@ -124,5 +128,13 @@
   <data name="imagenDefault" xml:space="preserve">
     <value>userDefault.png</value>
     <comment>imagen defaulta para usuarios</comment>
+  </data>
+  <data name="imagenErrorPop" xml:space="preserve">
+    <value>error_Red.png</value>
+    <comment>icono error</comment>
+  </data>
+  <data name="imagenSuccessPop" xml:space="preserve">
+    <value>success_Green.png</value>
+    <comment>icono success</comment>
   </data>
 </root>
